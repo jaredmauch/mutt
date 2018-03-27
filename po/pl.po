@@ -92,7 +92,6 @@ msgid "Save to file: "
 msgstr "Zapisz do pliku: "
 
 #: alias.c:361
-#, fuzzy
 msgid "Error reading alias file"
 msgstr "Błąd podczas czytania pliku aliasów"
 
@@ -101,7 +100,6 @@ msgid "Alias added."
 msgstr "Alias został dodany."
 
 #: alias.c:391
-#, fuzzy
 msgid "Error seeking in alias file"
 msgstr "Błąd podczas przeszukiwania pliku aliasów"
 
