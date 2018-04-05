@@ -463,7 +463,36 @@ AC_CACHE_CHECK([whether your system's regexp library is completely broken],
         AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #include <unistd.h>
 #include <regex.h>
-main() { regex_t blah ; regmatch_t p; p.rm_eo = p.rm_eo; return regcomp(&blah, "foo.*bar", REG_NOSUB) || regexec (&blah, "foobar", 0, NULL, 0); }]])],[mutt_cv_regex_broken=no],[mutt_cv_regex_broken=yes],[mutt_cv_regex_broken=yes]))
+int main()
+{
+changequote(, )dnl
+  regex_t re;
+  regmatch_t p[3];
+
+  if (regcomp(&re, "foo.*bar", REG_NOSUB))
+    return 1;
+  if (regexec(&re, "foobar", 0, NULL, 0))
+    return 1;
+
+  if (regcomp(&re,
+              "X-Bogosity: (Unsure|Spam), tests=bogofilter, spamicity=([0-9]\\\\.[0-9]+)",
+              REG_EXTENDED))
+    return 1;
+  if (re.re_nsub != 2)
+    return 1;
+  if (regexec(&re,
+              "Foo X-Bogosity: Spam, tests=bogofilter, spamicity=1.2",
+              3, p, 0))
+    return 1;
+  if ((p[0].rm_so != 4) || (p[0].rm_eo != 53) ||
+      (p[1].rm_so != 16) || (p[1].rm_eo != 20) ||
+      (p[2].rm_so != 50) || (p[2].rm_eo != 53))
+    return 1;
+
+  return 0;
+changequote([, ])dnl
+}
+        ]])],[mutt_cv_regex_broken=no],[mutt_cv_regex_broken=yes],[mutt_cv_regex_broken=yes]))
         if test $mutt_cv_regex_broken = yes ; then
                 echo "Using the included GNU regex instead." >&AS_MESSAGE_FD
                 mutt_cv_regex=yes
