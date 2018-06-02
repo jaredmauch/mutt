@@ -294,6 +294,7 @@ int mutt_parse_mailboxes (BUFFER *path, BUFFER *s, unsigned long data, BUFFER *e
       mutt_sb_notify_mailbox (*tmp, 1);
 #endif
 #ifdef USE_INOTIFY
+      (*tmp)->magic = mx_get_magic ((*tmp)->path);
       mutt_monitor_add (*tmp);
 #endif
     }

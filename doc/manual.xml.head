@@ -6398,8 +6398,7 @@ the <command>mailboxes</command> command.
 <para>
 No configuration variables are available.
 Trace output is given when debugging is enabled via command line option
-<literal>-d3</literal>.  The lower level 2 only covers subscriptions
-and omits new mail events.
+<literal>-d3</literal>.  The lower level 2 only shows errors.
 </para>
 
 <note>
