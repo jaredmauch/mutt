@@ -19,20 +19,7 @@
 #ifndef MONITOR_H
 #define MONITOR_H
 
-typedef struct monitor_t
-{
-  struct monitor_t *next;
-  char *mh_backup_path;
-  dev_t st_dev;
-  ino_t st_ino;
-  short magic;
-  int descr;
-}
-MONITOR;
-
 WHERE int MonitorFilesChanged INITVAL (0);
-int INotifyFd INITVAL (-1);
-MONITOR *Monitor INITVAL (NULL);
 
 #ifdef _BUFFY_H
 int mutt_monitor_add (BUFFY *b);

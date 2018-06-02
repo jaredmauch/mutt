@@ -34,6 +34,19 @@
 #include <errno.h>
 #include <sys/stat.h>
 
+typedef struct monitor_t
+{
+  struct monitor_t *next;
+  char *mh_backup_path;
+  dev_t st_dev;
+  ino_t st_ino;
+  short magic;
+  int descr;
+}
+MONITOR;
+
+static int INotifyFd = -1;
+static MONITOR *Monitor = NULL;
 static size_t PollFdsCount = 0;
 static size_t PollFdsLen = 0;
 static struct pollfd *PollFds;
@@ -145,9 +158,9 @@ static void monitor_delete (MONITOR *monitor)
     ptr = &(*ptr)->next;
   }
 
-  FREE (&monitor->mh_backup_path);
+  FREE (&monitor->mh_backup_path); /* __FREE_CHECKED__ */
   monitor = monitor->next;
-  FREE (ptr);
+  FREE (ptr); /* __FREE_CHECKED__ */
   *ptr = monitor;
 }
 
