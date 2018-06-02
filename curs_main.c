@@ -1278,9 +1278,6 @@ int mutt_index_menu (void)
 	  int check;
           char *new_last_folder;
 
-#ifdef USE_INOTIFY
-          mutt_monitor_remove (NULL);
-#endif
 #ifdef USE_COMPRESSED
 	  if (Context->compress_info && Context->realpath)
 	    new_last_folder = safe_strdup (Context->realpath);
@@ -1299,6 +1296,9 @@ int mutt_index_menu (void)
 	    menu->redraw |= REDRAW_INDEX | REDRAW_STATUS;
 	    break;
 	  }
+#ifdef USE_INOTIFY
+          mutt_monitor_remove (NULL);
+#endif
 	  FREE (&Context);
           FREE (&LastFolder);
           LastFolder = new_last_folder;

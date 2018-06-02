@@ -290,7 +290,8 @@ int mutt_monitor_poll ()
 
 #define RESOLVERES_OK_NOTEXISTING  0
 #define RESOLVERES_OK_EXISTING     1
-#define RESOLVERES_FAIL_NOMAILBOX -2
+#define RESOLVERES_FAIL_NOMAILBOX -3
+#define RESOLVERES_FAIL_NOMAGIC   -2
 #define RESOLVERES_FAIL_STAT      -1
 
 /* monitor_resolve: resolve monitor entry match by BUFFY, or - if NULL - by Context.
@@ -298,7 +299,8 @@ int mutt_monitor_poll ()
  * return values:
  *      >=0   mailbox is valid and locally accessible:
  *              0: no monitor / 1: preexisting monitor
- *       -2   no mailbox (MONITORINFO: no fields set)
+ *       -3   no mailbox (MONITORINFO: no fields set)
+ *       -2   magic not set
  *       -1   stat() failed (see errno; MONITORINFO fields: magic, isdir, path)
  */
 static int monitor_resolve (MONITORINFO *info, BUFFY *buffy)
@@ -319,10 +321,14 @@ static int monitor_resolve (MONITORINFO *info, BUFFY *buffy)
   }
   else
   {
-    return -2;
+    return RESOLVERES_FAIL_NOMAILBOX;
   }
 
-  if (info->magic == MUTT_MAILDIR)
+  if (!info->magic)
+  {
+    return RESOLVERES_FAIL_NOMAGIC;
+  }
+  else if (info->magic == MUTT_MAILDIR)
   {
     info->isdir = 1;
     fmt = "%s/new";
@@ -340,7 +346,7 @@ static int monitor_resolve (MONITORINFO *info, BUFFY *buffy)
     info->path = info->_pathbuf;
   }
   if (stat (info->path, &sb) != 0)
-    return -1;
+    return RESOLVERES_FAIL_STAT;
 
   iter = Monitor;
   while (iter && (iter->st_ino != sb.st_ino || iter->st_dev != sb.st_dev))
@@ -350,7 +356,7 @@ static int monitor_resolve (MONITORINFO *info, BUFFY *buffy)
   info->st_ino = sb.st_ino;
   info->monitor = iter;
 
-  return iter ? 1 : 0;
+  return iter ? RESOLVERES_OK_EXISTING : RESOLVERES_OK_NOTEXISTING;
 }
 
 /* mutt_monitor_add: add file monitor from BUFFY, or - if NULL - from Context.
@@ -389,7 +395,8 @@ void mutt_monitor_remove (BUFFY *buffy)
   MONITORINFO info;
 
   if (monitor_resolve (&info, buffy) != RESOLVERES_OK_EXISTING
-      || (!buffy && mutt_find_mailbox (Context->realpath)))
+      || (!buffy && (!Context 
+                     || mutt_find_mailbox (Context->realpath) /* leave when in buffy */ )))
     return;
 
   inotify_rm_watch(info.monitor->descr, INotifyFd);
