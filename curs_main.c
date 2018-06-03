@@ -1292,6 +1292,10 @@ int mutt_index_menu (void)
 
 	  if ((check = mx_close_mailbox (Context, &index_hint)) != 0)
 	  {
+#ifdef USE_INOTIFY
+            if (!monitor_remove_rc)
+              mutt_monitor_add (NULL);
+#endif
 	    if (check == MUTT_NEW_MAIL || check == MUTT_REOPENED)
 	      update_index (menu, Context, check, oldcount, index_hint);
 
@@ -1300,10 +1304,6 @@ int mutt_index_menu (void)
 	    menu->redraw |= REDRAW_INDEX | REDRAW_STATUS;
 	    break;
 	  }
-#ifdef USE_INOTIFY
-          if (!monitor_remove_rc)
-            mutt_monitor_add (NULL);
-#endif
 	  FREE (&Context);
           FREE (&LastFolder);
           LastFolder = new_last_folder;
