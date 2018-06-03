@@ -392,8 +392,7 @@ int mutt_monitor_add (BUFFY *buffy)
  */
 void mutt_monitor_remove (BUFFY *buffy)
 {
-  MONITORINFO info;
-  struct stat sb;
+  MONITORINFO info, info2;
 
   if (monitor_resolve (&info, buffy) != RESOLVERES_OK_EXISTING)
     return;
@@ -402,8 +401,8 @@ void mutt_monitor_remove (BUFFY *buffy)
   {
     if (buffy)
     {
-      if (stat (Context->realpath, &sb) == 0
-          && info.st_ino == sb.st_ino && info.st_dev == sb.st_dev)
+      if (monitor_resolve (&info2, NULL) == RESOLVERES_OK_EXISTING
+          && info.st_ino == info2.st_ino && info.st_dev == info2.st_dev)
         return;
     }
     else
