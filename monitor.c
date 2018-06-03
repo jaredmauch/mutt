@@ -389,13 +389,18 @@ int mutt_monitor_add (BUFFY *buffy)
 }
 
 /* mutt_monitor_remove: remove file monitor from BUFFY, or - if NULL - from Context.
+ *
+ * return values:
+ *       0   monitor removed (not shared)
+ *       1   monitor not removed (shared)
+ *       2   no monitor
  */
-void mutt_monitor_remove (BUFFY *buffy)
+int mutt_monitor_remove (BUFFY *buffy)
 {
   MONITORINFO info, info2;
 
   if (monitor_resolve (&info, buffy) != RESOLVERES_OK_EXISTING)
-    return;
+    return 2;
 
   if (Context)
   {
@@ -403,12 +408,12 @@ void mutt_monitor_remove (BUFFY *buffy)
     {
       if (monitor_resolve (&info2, NULL) == RESOLVERES_OK_EXISTING
           && info.st_ino == info2.st_ino && info.st_dev == info2.st_dev)
-        return;
+        return 1;
     }
     else
     {
       if (mutt_find_mailbox (Context->realpath))
-        return;
+        return 1;
     }
   }
 
@@ -417,4 +422,5 @@ void mutt_monitor_remove (BUFFY *buffy)
 
   monitor_delete (info.monitor);
   monitor_check_free ();
+  return 0;
 }

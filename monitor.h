@@ -23,7 +23,7 @@ WHERE int MonitorFilesChanged INITVAL (0);
 
 #ifdef _BUFFY_H
 int mutt_monitor_add (BUFFY *b);
-void mutt_monitor_remove (BUFFY *b);
+int mutt_monitor_remove (BUFFY *b);
 #endif
 int mutt_monitor_poll ();
 
