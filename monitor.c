@@ -393,11 +393,25 @@ int mutt_monitor_add (BUFFY *buffy)
 void mutt_monitor_remove (BUFFY *buffy)
 {
   MONITORINFO info;
+  struct stat sb;
 
-  if (monitor_resolve (&info, buffy) != RESOLVERES_OK_EXISTING
-      || (!buffy && (!Context 
-                     || mutt_find_mailbox (Context->realpath) /* leave when in buffy */ )))
+  if (monitor_resolve (&info, buffy) != RESOLVERES_OK_EXISTING)
     return;
+
+  if (Context)
+  {
+    if (buffy)
+    {
+      if (stat (Context->realpath, &sb) == 0
+          && info.st_ino == sb.st_ino && info.st_dev == sb.st_dev)
+        return;
+    }
+    else
+    {
+      if (mutt_find_mailbox (Context->realpath))
+        return;
+    }
+  }
 
   inotify_rm_watch(info.monitor->descr, INotifyFd);
   dprint (3, (debugfile, "monitor: inotify_rm_watch for '%s' descriptor=%d\n", info.path, info.monitor->descr));
