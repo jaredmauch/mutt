@@ -6392,13 +6392,17 @@ to immediately open the next folder with unread mail (if any).
 When the <emphasis>Inotify</emphasis> mechanism for monitoring of
 files is supported (Linux only) and not disabled at compilation time,
 Mutt immediately notifies about new mail for all folders configured via
-the <command>mailboxes</command> command.
+the <link linkend="mailboxes"><command>mailboxes</command></link>
+command.  Dependent on
+<link linkend="mailbox-formats">mailbox format</link> also added
+<emphasis>old</emphasis> mails are tracked (not for Maildir).
 </para>
 
 <para>
-No configuration variables are available.
-Trace output is given when debugging is enabled via command line option
-<literal>-d3</literal>.  The lower level 2 only shows errors.
+No configuration variables are available.  Trace output is given when
+debugging is enabled via <link linkend="tab-commandline-options">command
+line option</link> <literal>-d3</literal>.  The lower level 2 only shows
+errors, the higher level 5 all including raw Inotify events.
 </para>
 
 <note>
