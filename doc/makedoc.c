@@ -47,6 +47,7 @@
 #endif
 
 #include "makedoc-defs.h"
+#include "../datatypes.h"
 
 #ifndef HAVE_STRERROR
 #ifndef STDC_HEADERS
@@ -342,66 +343,59 @@ static char *get_token (char *d, size_t l, char *s)
  **
  **/
 
-/* note: the following enum must be in the same order as the
- * following string definitions!
- */
-
-enum 
+struct
 {
-  DT_NONE = 0,
-  DT_BOOL,
-  DT_NUM,
-  DT_LNUM,
-  DT_STR,
-  DT_PATH,
-  DT_QUAD,
-  DT_SORT,
-  DT_RX,
-  DT_MAGIC,
-  DT_SYN,
-  DT_ADDR,
-  DT_MBCHARTBL
-};
-
-struct 
-{
+  int  type;
   char *machine;
   char *human;
 }
-types[] = 
+#define DATATYPE_ELEMENT(n,d) { n, #n, d }
+types[] =
 {
-  { "DT_NONE",	"-none-" 	},
-  { "DT_BOOL",  "boolean"	},
-  { "DT_NUM",   "number"	},
-  { "DT_LNUM",  "number (long)"	},
-  { "DT_STR",	"string"	},
-  { "DT_PATH",	"path"		},
-  { "DT_QUAD",	"quadoption"	},
-  { "DT_SORT",	"sort order"	},
-  { "DT_RX",	"regular expression" },
-  { "DT_MAGIC",	"folder magic" },
-  { "DT_SYN",	NULL },
-  { "DT_ADDR",	"e-mail address" },
-  { "DT_MBCHARTBL", "string"	},
-  { NULL, NULL }
+  DATATYPE_ELEMENT( DT_NONE,      "-none-"              ),
+  DATATYPE_ELEMENT( DT_BOOL,      "boolean"             ),
+  DATATYPE_ELEMENT( DT_NUM,       "number"              ),
+  DATATYPE_ELEMENT( DT_LNUM,      "number (long)"       ),
+  DATATYPE_ELEMENT( DT_STR,       "string"              ),
+  DATATYPE_ELEMENT( DT_PATH,      "path"                ),
+  DATATYPE_ELEMENT( DT_QUAD,      "quadoption"          ),
+  DATATYPE_ELEMENT( DT_SORT,      "sort order"          ),
+  DATATYPE_ELEMENT( DT_RX,        "regular expression"  ),
+  DATATYPE_ELEMENT( DT_MAGIC,     "folder magic"        ),
+  DATATYPE_ELEMENT( DT_SYN,        NULL                 ),
+  DATATYPE_ELEMENT( DT_ADDR,      "e-mail address"      ),
+  DATATYPE_ELEMENT( DT_MBCHARTBL, "string"              ),
+  { 0, NULL, NULL }
 };
-    
+
+/* Including the terminating (not found) NULL element. */
+const size_t datatype_elements = sizeof(types) / sizeof(types[0]);
 
 static int buff2type (const char *s)
 {
-  int type;
-  
-  for (type = DT_NONE; types[type].machine; type++)
-    if (!strcmp (types[type].machine, s))
-	return type;
-  
+  size_t i;
+
+  for (i = 0; i < datatype_elements-1; i++)
+    if (!strcmp (types[i].machine, s))
+      return types[i].type;
+
+  fprintf(stderr, "%s:%d: buff2type: data types element not found: %s\n", __FILE__, __LINE__, s);
+  exit(1);
+
   return DT_NONE;
 }
 
 static const char *type2human (int type)
 {
-  return types[type].human;
+  size_t i;
+
+  for (i = 0; i < datatype_elements-1; i++)
+    if (types[i].type == type)
+      return types[i].human;
+
+  return types[datatype_elements-1].human;
 }
+
 static void handle_confline (char *s, FILE *out)
 {
   char varname[BUFFSIZE];
@@ -530,10 +524,17 @@ static void pretty_default (char *t, size_t l, const char *s, int type)
 	break;
       /* fallthrough */
     }
-    default:
+    case DT_NUM:
+    case DT_LNUM:
+    case DT_SYN:
     {
       strncpy (t, s, l);
       break;
+    }
+    default:
+    {
+      fprintf(stderr, "%s:%d: pretty_default: unhandled data type %d\n", __FILE__, __LINE__, type);
+      exit(1);
     }
   }
 }
