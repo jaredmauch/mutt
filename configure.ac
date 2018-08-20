@@ -1341,6 +1341,10 @@ AC_ARG_WITH(idn2, AS_HELP_STRING([--with-idn2=@<:@PFX@:>@],[Use GNU libidn2 for 
             if test "$with_idn2" != "yes" ; then
               CPPFLAGS="$CPPFLAGS -I$with_idn2/include"
               LDFLAGS="$LDFLAGS -L$with_idn2/lib"
+            else
+              PKG_CHECK_MODULES([LIBIDN2], libidn2,
+                                 [CPPFLAGS="$CPPFLAGS $LIBIDN2_CFLAGS"
+                                 LIBS="$LIBIDN2_LIBS"])
             fi
           fi
         ],
