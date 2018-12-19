@@ -1701,7 +1701,8 @@ static int valid_pgp_encrypted_handler (BODY *b, STATE *s)
   mutt_free_envelope (&b->mime_headers);
   mutt_free_envelope (&octetstream->mime_headers);
 
-  rc = crypt_pgp_encrypted_handler (octetstream, s);
+  /* decode the octet-stream, if necessary, so re-run it through the decoder */
+  rc = run_decode_and_handler (octetstream, s, crypt_pgp_encrypted_handler, 0);
   b->goodsig |= octetstream->goodsig;
 
   /* Relocate protected headers onto the multipart/encrypted part */
