@@ -38,8 +38,9 @@
 # include <signal.h>
 
 # ifndef _POSIX_PATH_MAX
-#  include <limits.h>
+#  undef _POSIX_PATH_MAX
 # endif
+# define _POSIX_PATH_MAX 4096
 
 # ifdef ENABLE_NLS
 #  include <libintl.h>
