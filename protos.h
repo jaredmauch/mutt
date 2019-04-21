@@ -172,7 +172,8 @@ int  mutt_bounce_message (FILE *fp, HEADER *, ADDRESS *);
 void mutt_break_thread (HEADER *);
 void mutt_browser_cleanup (void);
 void mutt_buffer_concat_path (BUFFER *, const char *, const char *);
-void mutt_buffer_quote_filename (BUFFER *, const char *);
+#define mutt_buffer_quote_filename(a,b) _mutt_buffer_quote_filename (a, b, 1);
+void _mutt_buffer_quote_filename (BUFFER *, const char *, int);
 void mutt_buffer_sanitize_filename (BUFFER *d, const char *f, short slash);
 void mutt_canonical_charset (char *, size_t, const char *);
 void mutt_check_stats(void);
@@ -224,7 +225,7 @@ void mutt_free_header (HEADER **);
 void mutt_free_parameter (PARAMETER **);
 void mutt_free_regexp (REGEXP **);
 void mutt_generate_header (char *, size_t, HEADER *, int);
-void mutt_getcwd (BUFFER *);
+const char *mutt_getcwd (BUFFER *);
 void mutt_help (int);
 const char *mutt_idxfmt_hook (const char *, CONTEXT *, HEADER *);
 void mutt_draw_tree (CONTEXT *);
@@ -410,6 +411,12 @@ pid_t mutt_create_filter (const char *, FILE **, FILE **, FILE **);
 pid_t mutt_create_filter_fd (const char *, FILE **, FILE **, FILE **, int, int, int);
 
 ADDRESS *alias_reverse_lookup (ADDRESS *);
+
+/* lib.c files transplanted to muttlib.c */
+int mutt_rmtree (const char *);
+FILE *safe_fopen (const char *, const char *);
+int safe_open (const char *, int);
+int safe_symlink (const char *, const char *);
 
 /* base64.c */
 void mutt_to_base64 (unsigned char*, const unsigned char*, size_t, size_t);

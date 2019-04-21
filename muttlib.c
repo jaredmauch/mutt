@@ -46,6 +46,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <utime.h>
+#include <dirent.h>
 
 BODY *mutt_new_body (void)
 {
@@ -1002,14 +1003,15 @@ void mutt_pretty_size (char *s, size_t len, LOFF_T n)
   }
 }
 
-void mutt_buffer_quote_filename (BUFFER *d, const char *f)
+void _mutt_buffer_quote_filename (BUFFER *d, const char *f, int add_outer)
 {
   mutt_buffer_clear (d);
 
   if (!f)
     return;
 
-  mutt_buffer_addch (d, '\'');
+  if (add_outer)
+    mutt_buffer_addch (d, '\'');
 
   for (; *f; f++)
   {
@@ -1024,7 +1026,8 @@ void mutt_buffer_quote_filename (BUFFER *d, const char *f)
       mutt_buffer_addch (d, *f);
   }
 
-  mutt_buffer_addch (d, '\'');
+  if (add_outer)
+    mutt_buffer_addch (d, '\'');
 }
 
 static const char safe_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+@{}._-:%/";
@@ -1203,7 +1206,7 @@ void mutt_buffer_concat_path (BUFFER *d, const char *dir, const char *fname)
   mutt_buffer_printf (d, fmt, dir, fname);
 }
 
-void mutt_getcwd (BUFFER *cwd)
+const char *mutt_getcwd (BUFFER *cwd)
 {
   char *retval;
 
@@ -1218,6 +1221,8 @@ void mutt_getcwd (BUFFER *cwd)
     mutt_buffer_fix_dptr (cwd);
   else
     mutt_buffer_clear (cwd);
+
+  return retval;
 }
 
 /* Note this function uses a fixed size buffer of LONG_STRING and so
@@ -2192,3 +2197,235 @@ void mutt_encode_path (char *dest, size_t dlen, const char *src)
   strfcpy (dest, (rc == 0) ? NONULL(p) : NONULL(src), dlen);
   FREE (&p);
 }
+
+
+/************************************************************************
+ * These functions are transplanted from lib.c, in order to modify them *
+ * to use BUFFERs.                                                      *
+ ************************************************************************/
+
+/* remove a directory and everything under it */
+int mutt_rmtree (const char* path)
+{
+  DIR* dirp;
+  struct dirent* de;
+  BUFFER *cur = NULL;
+  struct stat statbuf;
+  int rc = 0;
+
+  if (!(dirp = opendir (path)))
+  {
+    dprint (1, (debugfile, "mutt_rmtree: error opening directory %s\n", path));
+    return -1;
+  }
+
+  /* We avoid using the buffer pool for this function, because it
+   * invokes recursively to an unknown depth. */
+  cur = mutt_buffer_new ();
+  mutt_buffer_increase_size (cur, _POSIX_PATH_MAX);
+
+  while ((de = readdir (dirp)))
+  {
+    if (!strcmp (".", de->d_name) || !strcmp ("..", de->d_name))
+      continue;
+
+    mutt_buffer_printf (cur, "%s/%s", path, de->d_name);
+    /* XXX make nonrecursive version */
+
+    if (stat(mutt_b2s (cur), &statbuf) == -1)
+    {
+      rc = 1;
+      continue;
+    }
+
+    if (S_ISDIR (statbuf.st_mode))
+      rc |= mutt_rmtree (mutt_b2s (cur));
+    else
+      rc |= unlink (mutt_b2s (cur));
+  }
+  closedir (dirp);
+
+  rc |= rmdir (path);
+
+  mutt_buffer_free (&cur);
+  return rc;
+}
+
+/* Create a temporary directory next to a file name */
+
+static int mutt_mkwrapdir (const char *path, BUFFER *newfile, BUFFER *newdir)
+{
+  const char *basename;
+  BUFFER *parent = NULL;
+  char *p;
+  int rc = 0;
+
+  parent = mutt_buffer_pool_get ();
+  mutt_buffer_strcpy (parent, NONULL (path));
+
+  if ((p = strrchr (parent->data, '/')))
+  {
+    *p = '\0';
+    basename = p + 1;
+  }
+  else
+  {
+    mutt_buffer_strcpy (parent, ".");
+    basename = path;
+  }
+
+  mutt_buffer_printf (newdir, "%s/%s", mutt_b2s (parent), ".muttXXXXXX");
+  if (mkdtemp(newdir->data) == NULL)
+  {
+    dprint(1, (debugfile, "mutt_mkwrapdir: mkdtemp() failed\n"));
+    rc = -1;
+    goto cleanup;
+  }
+
+  mutt_buffer_printf (newfile, "%s/%s", mutt_b2s (newdir), NONULL(basename));
+
+cleanup:
+  mutt_buffer_pool_release (&parent);
+  return rc;
+}
+
+static int mutt_put_file_in_place (const char *path, const char *safe_file, const char *safe_dir)
+{
+  int rv;
+
+  rv = safe_rename (safe_file, path);
+  unlink (safe_file);
+  rmdir (safe_dir);
+  return rv;
+}
+
+int safe_open (const char *path, int flags)
+{
+  struct stat osb, nsb;
+  int fd;
+  BUFFER *safe_file = NULL;
+  BUFFER *safe_dir = NULL;
+
+  if (flags & O_EXCL)
+  {
+    safe_file = mutt_buffer_pool_get ();
+    safe_dir = mutt_buffer_pool_get ();
+
+    if (mutt_mkwrapdir (path, safe_file, safe_dir) == -1)
+    {
+      fd = -1;
+      goto cleanup;
+    }
+
+    if ((fd = open (mutt_b2s (safe_file), flags, 0600)) < 0)
+    {
+      rmdir (mutt_b2s (safe_dir));
+      goto cleanup;
+    }
+
+    /* NFS and I believe cygwin do not handle movement of open files well */
+    close (fd);
+    if (mutt_put_file_in_place (path, mutt_b2s (safe_file), mutt_b2s (safe_dir)) == -1)
+    {
+      fd = -1;
+      goto cleanup;
+    }
+  }
+
+  if ((fd = open (path, flags & ~O_EXCL, 0600)) < 0)
+    goto cleanup;
+
+  /* make sure the file is not symlink */
+  if (lstat (path, &osb) < 0 || fstat (fd, &nsb) < 0 ||
+      compare_stat(&osb, &nsb) == -1)
+  {
+/*    dprint (1, (debugfile, "safe_open(): %s is a symlink!\n", path)); */
+    close (fd);
+    fd = -1;
+    goto cleanup;
+  }
+
+cleanup:
+  mutt_buffer_pool_release (&safe_file);
+  mutt_buffer_pool_release (&safe_dir);
+
+  return (fd);
+}
+
+/* when opening files for writing, make sure the file doesn't already exist
+ * to avoid race conditions.
+ */
+FILE *safe_fopen (const char *path, const char *mode)
+{
+  if (mode[0] == 'w')
+  {
+    int fd;
+    int flags = O_CREAT | O_EXCL;
+
+#ifdef O_NOFOLLOW
+    flags |= O_NOFOLLOW;
+#endif
+
+    if (mode[1] == '+')
+      flags |= O_RDWR;
+    else
+      flags |= O_WRONLY;
+
+    if ((fd = safe_open (path, flags)) < 0)
+      return (NULL);
+
+    return (fdopen (fd, mode));
+  }
+  else
+    return (fopen (path, mode));
+}
+
+int safe_symlink(const char *oldpath, const char *newpath)
+{
+  struct stat osb, nsb;
+
+  if (!oldpath || !newpath)
+    return -1;
+
+  if (unlink(newpath) == -1 && errno != ENOENT)
+    return -1;
+
+  if (oldpath[0] == '/')
+  {
+    if (symlink (oldpath, newpath) == -1)
+      return -1;
+  }
+  else
+  {
+    BUFFER *abs_oldpath = NULL;
+
+    abs_oldpath = mutt_buffer_pool_get ();
+
+    if (mutt_getcwd (abs_oldpath) == NULL)
+    {
+      mutt_buffer_pool_release (&abs_oldpath);
+      return -1;
+    }
+
+    mutt_buffer_addch (abs_oldpath, '/');
+    mutt_buffer_addstr (abs_oldpath, oldpath);
+    if (symlink (mutt_b2s (abs_oldpath), newpath) == -1)
+    {
+      mutt_buffer_pool_release (&abs_oldpath);
+      return -1;
+    }
+
+    mutt_buffer_pool_release (&abs_oldpath);
+  }
+
+  if (stat(oldpath, &osb) == -1 || stat(newpath, &nsb) == -1
+      || compare_stat(&osb, &nsb) == -1)
+  {
+    unlink(newpath);
+    return -1;
+  }
+
+  return 0;
+}
+
+/* END lib.c transplant functions */
