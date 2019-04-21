@@ -961,11 +961,15 @@ static int set_signer (gpgme_ctx_t ctx, int for_smime)
                   signid, gpgme_strerror (err));
       return -1;
     }
-  fpr = key->subkeys->fpr;
+  fpr = "fpr1";
+  if (key->subkeys)
+    fpr = key->subkeys->fpr ? key->subkeys->fpr : key->subkeys->keyid;
   while (! gpgme_op_keylist_next (listctx, &key2))
     {
-      fpr2 = key2->subkeys->fpr;
-      if (strcmp(fpr, fpr2))
+      fpr2 = "fpr2";
+      if (key2->subkeys)
+        fpr2 = key2->subkeys->fpr ? key2->subkeys->fpr : key2->subkeys->keyid;
+      if (mutt_strcmp(fpr, fpr2))
         {
           gpgme_key_unref (key);
           gpgme_key_unref (key2);
