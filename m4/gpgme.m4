@@ -17,8 +17,10 @@ AC_DEFUN([_AM_PATH_GPGME_CONFIG],
      gpgme_config_prefix="$withval", gpgme_config_prefix="")
   if test "x$gpgme_config_prefix" != x ; then
       GPGME_CONFIG="$gpgme_config_prefix/bin/gpgme-config"
+      GPG_ERROR_CONFIG="$gpgme_config_prefix/bin/gpg-error-config"
   fi
   AC_PATH_PROG(GPGME_CONFIG, gpgme-config, no)
+  AC_PATH_PROG(GPG_ERROR_CONFIG, gpg-error-config, no)
 
   if test "$GPGME_CONFIG" != "no" ; then
     gpgme_version=`$GPGME_CONFIG --version`
@@ -86,6 +88,9 @@ AC_DEFUN([AM_PATH_GPGME],
   if test $ok = yes; then
     GPGME_CFLAGS=`$GPGME_CONFIG --cflags`
     GPGME_LIBS=`$GPGME_CONFIG --libs`
+    if test "$GPG_ERROR_CONFIG" != "no" ; then
+      GPGME_LIBS="$GPGME_LIBS `$GPG_ERROR_CONFIG --libs`"
+    fi
     AC_MSG_RESULT(yes)
     ifelse([$2], , :, [$2])
   else
