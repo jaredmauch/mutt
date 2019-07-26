@@ -601,6 +601,7 @@ enum
   OPTPGPCHECKTRUST,	/* (pseudo) used by pgp_select_key () */
   OPTDONTHANDLEPGPKEYS,	/* (pseudo) used to extract PGP keys */
   OPTIGNOREMACROEVENTS, /* (pseudo) don't process macro/push/exec events while set */
+  OPTDONTHANDLEMACROKEYS, /* (pseudo) used to pass through macro keys while set (lower priority than OPTIGNOREMACROEVNETS) */
 
   OPTMAX
 };
