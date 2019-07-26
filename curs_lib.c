@@ -244,9 +244,11 @@ int mutt_get_field_unbuffered (char *msg, char *buf, size_t buflen, int flags)
 {
   int rc;
 
-  set_option (OPTDONTHANDLEMACROKEYS);
+  if (flags&MUTT_PASS) set_option (OPTDONTHANDLEMACROKEYS);
+  else set_option(OPTIGNOREMACROEVENTS);
   rc = mutt_get_field (msg, buf, buflen, flags);
-  unset_option (OPTDONTHANDLEMACROKEYS);
+  if (flags&MUTT_PASS) unset_option (OPTDONTHANDLEMACROKEYS);
+  else unset_option (OPTIGNOREMACROEVENTS);
 
   return (rc);
 }
