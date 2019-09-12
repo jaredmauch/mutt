@@ -543,6 +543,11 @@ static void fill_empty_space (int first_row, int num_rows, int width)
  */
 static void draw_sidebar (int num_rows, int num_cols, int div_width)
 {
+  struct { short depth, width; } stack[32];
+  int stack_index = 0;
+  stack[0].depth = 0;
+  stack[0].width = -1;
+  const char *last_folder_name = NULL;
   int entryidx;
   SBENTRY *entry;
   BUFFY *b;
@@ -601,53 +606,72 @@ static void draw_sidebar (int num_rows, int num_cols, int div_width)
         strchr (SidebarDelimChars, mutt_b2s (b->pathbuf)[maildirlen]))
       maildir_is_prefix = 1;
 
-    /* calculate depth of current folder and generate its display name with indented spaces */
-    int sidebar_folder_depth = 0;
-    const char *sidebar_folder_name;
-    BUFFER *short_folder_name = NULL;
-    int i;
-    if (option (OPTSIDEBARSHORTPATH))
-    {
-      /* disregard a trailing separator, so strlen() - 2 */
-      sidebar_folder_name = mutt_b2s (b->pathbuf);
-      for (i = mutt_strlen (sidebar_folder_name) - 2; i >= 0; i--)
-      {
-        if (SidebarDelimChars &&
-            strchr (SidebarDelimChars, sidebar_folder_name[i]))
-        {
-          sidebar_folder_name += (i + 1);
-          break;
-        }
-      }
-    }
-    else
-      sidebar_folder_name = mutt_b2s (b->pathbuf) + maildir_is_prefix * (maildirlen + 1);
+    const char *sidebar_folder_name =
+      mutt_b2s (b->pathbuf) + maildir_is_prefix * (maildirlen + 1);
+    BUFFER *short_folder_name = mutt_buffer_pool_get ();
 
-    if (maildir_is_prefix && option (OPTSIDEBARFOLDERINDENT))
+    if (option (OPTSIDEBARSHORTPATH) || option (OPTSIDEBARFOLDERINDENT))
     {
-      const char *tmp_folder_name;
-      int lastsep = 0;
-      tmp_folder_name = mutt_b2s (b->pathbuf) + maildirlen + 1;
-      int tmplen = (int) mutt_strlen (tmp_folder_name) - 1;
-      for (i = 0; i < tmplen; i++)
+      int common_depth = 0, depth = 0, i = 0;
+      while (1)
       {
-        if (SidebarDelimChars && strchr (SidebarDelimChars, tmp_folder_name[i]))
-        {
-          sidebar_folder_depth++;
-          lastsep = i + 1;
-        }
+	if (/* delimiter or terminating null in current folder ? */
+	    (sidebar_folder_name[i] == '\0' ||
+	     (SidebarDelimChars &&
+	     strchr (SidebarDelimChars, sidebar_folder_name[i]))))
+	{
+	  depth++;
+	  if (/* matching delimiter or null in previous folderh ? */
+	      last_folder_name &&
+	      (last_folder_name[i] == '\0' ||
+	       last_folder_name[i] == sidebar_folder_name[i]))
+	  {
+	    common_depth++;
+	    if (last_folder_name[i] == '\0') last_folder_name = NULL;
+	  }
+	  /* immediately break on terminating delimiter, don't wait for null
+	   * (like in "Mail/inbox/") */
+	  if (sidebar_folder_name[i] == '\0' ||
+	      sidebar_folder_name[i+1] == '\0')
+	    break;
+	}
+	if (last_folder_name &&
+	    last_folder_name[i] != sidebar_folder_name[i])
+	  last_folder_name = NULL;
+	i++;
       }
-      if (sidebar_folder_depth > 0)
+      last_folder_name = sidebar_folder_name;
+
+      while (stack[stack_index].depth > common_depth) stack_index--;
+      int indent_depth = stack[stack_index].depth;
+      int indent_width = stack[stack_index].width;
+      if (depth > indent_depth) indent_width++;
+      if (stack_index + 1 < sizeof(stack)) stack_index++;
+      stack[stack_index].depth = depth;
+      stack[stack_index].width = indent_width;
+
+      if (option (OPTSIDEBARSHORTPATH) && indent_depth > 0) {
+	do
+	{
+	  while (--i >= 0 &&
+		 ! strchr (SidebarDelimChars, sidebar_folder_name[i]));
+	  depth--;
+	} while (depth > indent_depth);
+	sidebar_folder_name += i + 1;
+	if (depth > 0) maildir_is_prefix = 0;
+      }
+
+      if (option (OPTSIDEBARFOLDERINDENT))
       {
-        if (option (OPTSIDEBARSHORTPATH))
-          tmp_folder_name += lastsep;  /* basename */
-        short_folder_name = mutt_buffer_pool_get ();
-        for (i=0; i < sidebar_folder_depth; i++)
-          mutt_buffer_addstr (short_folder_name, NONULL(SidebarIndentString));
-        mutt_buffer_addstr (short_folder_name, tmp_folder_name);
-        sidebar_folder_name = mutt_b2s (short_folder_name);
+	for (i=0; i < indent_width; i++)
+	  mutt_buffer_addstr (short_folder_name, NONULL(SidebarIndentString));
       }
     }
+    if (maildir_is_prefix)
+      mutt_buffer_addstr (short_folder_name, "+");
+    mutt_buffer_addstr (short_folder_name, sidebar_folder_name);
+    sidebar_folder_name = mutt_b2s (short_folder_name);
+
     char str[STRING];
     make_sidebar_entry (str, sizeof (str), w, sidebar_folder_name, entry);
     printw ("%s", str);
