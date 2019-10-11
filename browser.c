@@ -833,9 +833,6 @@ void _mutt_buffer_select_file (BUFFER *f, int flags, char ***files, int *numfile
   {
     op = mutt_menuLoop (menu);
 
-    if (state.entrylen)
-      mutt_buffer_strcpy (defaultsel, state.entry[menu->current].full_path);
-
     switch (op)
     {
       case OP_DESCEND_DIRECTORY:
