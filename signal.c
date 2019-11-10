@@ -115,11 +115,11 @@ void mutt_signal_init (void)
   act.sa_flags = 0;
   act.sa_handler = SIG_IGN;
   sigaction (SIGPIPE, &act, NULL);
+  sigaction (SIGQUIT, &act, NULL);
 
   act.sa_handler = exit_handler;
   sigaction (SIGTERM, &act, NULL);
   sigaction (SIGHUP, &act, NULL);
-  sigaction (SIGQUIT, &act, NULL);
 
   /* we want to avoid race conditions */
   sigaddset (&act.sa_mask, SIGTSTP);
@@ -200,12 +200,11 @@ void mutt_block_signals_system (void)
 
   if (! option (OPTSYSSIGNALSBLOCKED))
   {
-    /* POSIX: ignore SIGINT and SIGQUIT & block SIGCHLD  before exec */
+    /* POSIX: ignore SIGINT & block SIGCHLD  before exec */
     sa.sa_handler = SIG_IGN;
     sa.sa_flags = 0;
     sigemptyset (&sa.sa_mask);
     sigaction (SIGINT, &sa, &SysOldInt);
-    sigaction (SIGQUIT, &sa, &SysOldQuit);
 
     sigemptyset (&SigsetSys);
     sigaddset (&SigsetSys, SIGCHLD);
@@ -221,7 +220,6 @@ void mutt_unblock_signals_system (int catch)
     sigprocmask (SIG_UNBLOCK, &SigsetSys, NULL);
     if (catch)
     {
-      sigaction (SIGQUIT, &SysOldQuit, NULL);
       sigaction (SIGINT, &SysOldInt, NULL);
     }
     else
@@ -231,7 +229,6 @@ void mutt_unblock_signals_system (int catch)
       sa.sa_handler = SIG_DFL;
       sigemptyset (&sa.sa_mask);
       sa.sa_flags = 0;
-      sigaction (SIGQUIT, &sa, NULL);
       sigaction (SIGINT, &sa, NULL);
     }
 
