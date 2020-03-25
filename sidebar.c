@@ -871,7 +871,12 @@ static int select_next (void)
   {
     entry++;
     if (entry == EntryCount)
-      return 0;
+    {
+      if (option (OPTSIDEBARNEXTNEWWRAP))
+        entry = 0;
+      else
+        return 0;
+    }
   } while (Entries[entry]->is_hidden);
 
   HilIndex = entry;
@@ -931,7 +936,12 @@ static int select_prev (void)
   {
     entry--;
     if (entry < 0)
-      return 0;
+    {
+      if (option (OPTSIDEBARNEXTNEWWRAP))
+        entry = EntryCount - 1;
+      else
+        return 0;
+    }
   } while (Entries[entry]->is_hidden);
 
   HilIndex = entry;

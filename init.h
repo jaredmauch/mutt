@@ -3345,8 +3345,8 @@ struct option_t MuttVars[] = {
   ** .pp
   ** When set, the \fC<sidebar-next-new>\fP command will not stop and the end of
   ** the list of mailboxes, but wrap around to the beginning. The
-  ** \fC<sidebar-prev-new>\fP command is similarly affected, wrapping around to
-  ** the end of the list.
+  ** \fC<sidebar-prev-new>\fP, \fC<sidebar-next>\fP and \fC<sidebar-prev>\fP
+  ** commands are similarly affected, wrapping around to the end of the list.
   */
   { "sidebar_relative_shortpath_indent", DT_BOOL, R_SIDEBAR, {.l=OPTSIDEBARRELSPINDENT}, {.l=0} },
   /*
