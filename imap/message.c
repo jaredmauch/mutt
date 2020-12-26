@@ -881,8 +881,10 @@ static int read_headers_fetch_new (IMAP_DATA *idata, unsigned int msn_begin,
          imap_fetch_msn_seqset (b, idata, evalhc, msn_begin, msn_end,
                                 &fetch_msn_end))
   {
-    safe_asprintf (&cmd, "FETCH %s (UID FLAGS INTERNALDATE RFC822.SIZE %s)",
-                   mutt_b2s (b), hdrreq);
+    safe_asprintf (&cmd, "FETCH %s (%sUID FLAGS INTERNALDATE RFC822.SIZE X-GM-LABELS %s)",
+                   mutt_b2s (b), 
+                   mutt_bit_isset (idata->capabilities, X_GM_EXT_1) ? "X-GM-MSGID " : "",
+                   hdrreq);
     imap_cmd_start (idata, cmd);
     FREE (&cmd);
 
@@ -966,6 +968,7 @@ static int read_headers_fetch_new (IMAP_DATA *idata, unsigned int msn_begin,
                                                        0, 0);
         /* content built as a side-effect of mutt_read_rfc822_header */
         ctx->hdrs[idx]->content->length = h.content_length;
+        ctx->hdrs[idx]->env->x_label = h.data->labels;
         ctx->size += h.content_length;
 
 #if USE_HCACHE
@@ -1111,6 +1114,13 @@ int imap_fetch_message (CONTEXT *ctx, MESSAGE *msg, int msgno, int headers)
   }
   else
     fetch_data = headers ? "RFC822.HEADER" : "RFC822";
+
+  if (mutt_bit_isset (idata->capabilities, X_GM_EXT_1))
+  {
+    fprintf (msg->fp, "X-Gm-Msgid:%llu\n", HEADER_DATA(h)->msgid);
+    fprintf (msg->fp, "X-Gm-Permalink: https://mail.google.com/mail/#all/%llx\n", HEADER_DATA(h)->msgid);
+  }
+
 
   /* mark this header as currently inactive so the command handler won't
    * also try to update it. HACK until all this code can be moved into the
@@ -1890,10 +1900,56 @@ static int msg_parse_fetch (IMAP_HEADER *h, char *s)
   {
     SKIPWS (s);
 
+    if (ascii_strncasecmp ("X-GM-LABELS", s, 11) == 0)
+    {
+        s += 11;
+        SKIPWS (s);
+        ptmp = tmp;
+        s++; /* skip ( */
+        while (*s && *s != ')')
+        {
+            if (ptmp-tmp == sizeof(tmp)/sizeof(char))
+              s++;
+            else if (ascii_strncasecmp ("\"\\\\Important\"", s, 13) == 0)
+            {
+              s += 13;
+              SKIPWS (s);
+            }
+            else if (ascii_strncasecmp ("\"\\\\Starred\"", s, 11) == 0)
+            {
+              s += 11;
+              SKIPWS (s);
+            }
+            else if (ascii_strncasecmp ("\"\\\\", s, 3) == 0)
+              s += 3;
+            else if (ascii_strncasecmp ("\"", s, 1) == 0)
+              s++;
+            else
+              *ptmp++ = *s++;
+
+            if (*s == ')' && *(ptmp-1) == ' ')
+              ptmp--;
+        }
+        if (*s != ')')
+            return -1;
+        s++; /* skip ) */
+        *ptmp = 0;
+        h->data->labels = safe_strdup(tmp);
+        SKIPWS (s);
+    }
+
     if (ascii_strncasecmp ("FLAGS", s, 5) == 0)
     {
       if ((s = msg_parse_flags (h, s)) == NULL)
         return -1;
+    }
+    else if (ascii_strncasecmp ("X-GM-MSGID", s, 10) == 0)
+    {
+      s += 10;
+      SKIPWS (s);
+      h->data->msgid = strtoull (s, NULL, 10);
+
+      s = imap_next_word (s);
     }
     else if (ascii_strncasecmp ("UID", s, 3) == 0)
     {

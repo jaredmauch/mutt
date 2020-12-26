@@ -37,6 +37,8 @@ typedef struct imap_header_data
 
   unsigned int uid;	/* 32-bit Message UID */
   unsigned int msn;     /* Message Sequence Number */
+  unsigned long long msgid;
+  char *labels;
   LIST *keywords;
 } IMAP_HEADER_DATA;
 
