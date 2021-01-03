@@ -90,6 +90,7 @@ static HASH *new_hash (int nelem)
 HASH *hash_create (int nelem, int flags)
 {
   HASH *table = new_hash (nelem);
+  table->flags = flags;
   if (flags & MUTT_HASH_STRCASECMP)
   {
     table->gen_hash = gen_case_string_hash;
@@ -100,20 +101,15 @@ HASH *hash_create (int nelem, int flags)
     table->gen_hash = gen_string_hash;
     table->cmp_key = cmp_string_key;
   }
-  if (flags & MUTT_HASH_STRDUP_KEYS)
-    table->strdup_keys = 1;
-  if (flags & MUTT_HASH_ALLOW_DUPS)
-    table->allow_dups = 1;
   return table;
 }
 
 HASH *int_hash_create (int nelem, int flags)
 {
   HASH *table = new_hash (nelem);
+  table->flags = flags;
   table->gen_hash = gen_int_hash;
   table->cmp_key = cmp_int_key;
-  if (flags & MUTT_HASH_ALLOW_DUPS)
-    table->allow_dups = 1;
   return table;
 }
 
@@ -132,7 +128,7 @@ static int union_hash_insert (HASH * table, union hash_key key, void *data)
   ptr->key = key;
   ptr->data = data;
 
-  if (table->allow_dups)
+  if (table->flags & MUTT_HASH_ALLOW_DUPS)
   {
     ptr->next = table->table[h];
     table->table[h] = ptr;
@@ -159,13 +155,14 @@ static int union_hash_insert (HASH * table, union hash_key key, void *data)
       table->table[h] = ptr;
     ptr->next = tmp;
   }
+  table->length++;
   return h;
 }
 
 int hash_insert (HASH * table, const char *strkey, void *data)
 {
   union hash_key key;
-  key.strkey = table->strdup_keys ? safe_strdup (strkey) : strkey;
+  key.strkey = (table->flags & MUTT_HASH_STRDUP_KEYS) ? safe_strdup (strkey) : strkey;
   return union_hash_insert (table, key, data);
 }
 
@@ -258,9 +255,10 @@ static void union_hash_delete (HASH *table, union hash_key key, const void *data
       *last = ptr->next;
       if (destroy)
 	destroy (ptr->data);
-      if (table->strdup_keys)
+      if (table->flags & MUTT_HASH_STRDUP_KEYS)
         FREE (&ptr->key.strkey);
       FREE (&ptr);
+      table->length--;
 
       ptr = *last;
     }
@@ -309,7 +307,7 @@ void hash_destroy (HASH **ptr, void (*destroy) (void *))
       elem = elem->next;
       if (destroy)
 	destroy (tmp->data);
-      if (pptr->strdup_keys)
+      if (pptr->flags & MUTT_HASH_STRDUP_KEYS)
         FREE (&tmp->key.strkey);
       FREE (&tmp);
     }
@@ -342,4 +340,31 @@ struct hash_elem *hash_walk(const HASH *table, struct hash_walk_state *state)
   state->index = 0;
   state->last = NULL;
   return NULL;
+}
+
+int hash_update (HASH * table, const char *key, void *data)
+{
+  union hash_key hkey;
+  int hash;
+  struct hash_elem *ptr;
+
+  hkey.strkey = key;
+  hash = table->gen_hash (hkey, table->nelem);
+  ptr = table->table[hash];
+
+  for (; ptr; ptr = ptr->next)
+  {
+    if (table->cmp_key (hkey, ptr->key) == 0) {
+      ptr->data = data;
+      return hash;
+    }
+  }
+  return hash_insert(table, key, data);
+}
+
+int hash_length (HASH * table)
+{
+  if (table == NULL)
+    return -1;
+  return table->length;
 }
