@@ -75,7 +75,7 @@ EXTRA_mutt_SOURCES = account.c bcache.c compress.c crypt-gpgme.c crypt-mod-pgp-c
 	bcache.h browser.h hcache.h mbyte.h monitor.h mutt_idna.h remailer.h url.h \
 	mutt_lisp.h mutt_random.h
 
-EXTRA_DIST = COPYRIGHT GPL OPS OPS.PGP OPS.CRYPT OPS.SMIME TODO UPDATING \
+EXTRA_DIST = COPYRIGHT GPL mutt.desktop OPS OPS.PGP OPS.CRYPT OPS.SMIME TODO UPDATING \
 	configure account.h \
 	attach.h buffer.h buffy.h charset.h color.h compress.h copy.h crypthash.h \
 	dotlock.h functions.h gen_defs gettext.h \
@@ -94,6 +94,12 @@ EXTRA_DIST = COPYRIGHT GPL OPS OPS.PGP OPS.CRYPT OPS.SMIME TODO UPDATING \
 	txt2c.c txt2c.sh version.sh check_sec.sh
 
 EXTRA_SCRIPTS = smime_keys
+
+# XDG Desktop Entry support
+desktopdir = $(datadir)/applications
+if DESKTOP
+desktop_DATA = mutt.desktop
+endif
 
 mutt_dotlock_SOURCES = mutt_dotlock.c
 mutt_dotlock_LDADD = $(LIBOBJS)
