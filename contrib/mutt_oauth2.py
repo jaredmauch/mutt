@@ -39,14 +39,6 @@ import socket
 import http.server
 import subprocess
 
-# The token file must be encrypted because it contains multi-use bearer tokens
-# whose usage does not require additional verification. Specify whichever
-# encryption and decryption pipes you prefer. They should read from standard
-# input and write to standard output. The example values here invoke GPG,
-# although won't work until an appropriate identity appears in the first line.
-ENCRYPTION_PIPE = ['gpg', '--encrypt', '--recipient', 'YOUR_GPG_IDENTITY']
-DECRYPTION_PIPE = ['gpg', '--decrypt']
-
 registrations = {
     'google': {
         'authorize_endpoint': 'https://accounts.google.com/o/oauth2/auth',
@@ -74,8 +66,8 @@ registrations = {
         'scope': ('offline_access https://outlook.office.com/IMAP.AccessAsUser.All '
                   'https://outlook.office.com/POP.AccessAsUser.All '
                   'https://outlook.office.com/SMTP.Send'),
-        'client_id': '',
-        'client_secret': '',
+        'client_id': '', # '08162f7c-0fd2-4200-a84a-f25a4db0b584',
+        'client_secret': '', # 'TxRBilcHdC6WGBee]fs?QR:SJ8nI[g82',
     },
 }
 
@@ -91,8 +83,24 @@ ap.add_argument('-d', '--debug', action='store_true', help='enable debug output'
 ap.add_argument('tokenfile', help='persistent token storage')
 ap.add_argument('-a', '--authorize', action='store_true', help='manually authorize new tokens')
 ap.add_argument('--authflow', help='authcode | localhostauthcode | devicecode')
+ap.add_argument('--email', help='account email address')
+ap.add_argument('--registration', choices=registrations.keys(), help='auth registration provider')
 ap.add_argument('-t', '--test', action='store_true', help='test IMAP/POP/SMTP endpoints')
+ap.add_argument('--gpg-identity', default='YOUR_GPG_IDENTITY', help='identity used for encryption')
+ap.add_argument('--gpg-command', default='gpg', help='name or path of gpg executable')
+ap.add_argument('--client-id', help='client id of this application')
+ap.add_argument('--client-secret', help='client secret of this application')
 args = ap.parse_args()
+
+# The token file must be encrypted because it contains multi-use bearer tokens
+# whose usage does not require additional verification. Specify whichever
+# encryption and decryption pipes you prefer. They should read from standard
+# input and write to standard output. The example values here invoke GPG,
+# although won't work until an appropriate identity appears in the first line.
+ENCRYPTION_PIPE = [args.gpg_command, '--encrypt', '--recipient', args.gpg_identity]
+DECRYPTION_PIPE = [args.gpg_command, '--decrypt']
+
+
 
 token = {}
 path = Path(args.tokenfile)
@@ -126,10 +134,19 @@ if not token:
     if not args.authorize:
         sys.exit('You must run script with "--authorize" at least once.')
     print('Available app and endpoint registrations:', *registrations)
-    token['registration'] = input('OAuth2 registration: ')
-    token['authflow'] = input('Preferred OAuth2 flow ("authcode" or "localhostauthcode" '
-                              'or "devicecode"): ')
-    token['email'] = input('Account e-mail address: ')
+    if args.registration:
+        token['registration'] = args.registration
+    else:
+        token['registration'] = input('OAuth2 registration: ')
+    if args.authflow:
+        token['authflow'] = args.authflow
+    else:
+        token['authflow'] = input('Preferred OAuth2 flow ("authcode" or "localhostauthcode" '
+                                  'or "devicecode"): ')
+    if args.email:
+        token['email'] = args.email
+    else:
+        token['email'] = input('Account e-mail address: ')
     token['access_token'] = ''
     token['access_token_expiration'] = ''
     token['refresh_token'] = ''
@@ -139,6 +156,10 @@ if token['registration'] not in registrations:
     sys.exit(f'ERROR: Unknown registration "{token["registration"]}". Delete token file '
              f'and start over.')
 registration = registrations[token['registration']]
+if args.client_id is not None:
+    registration['client_id'] = args.client_id
+if args.client_id is not None:
+    registration['client_secret'] = args.client_secret
 
 authflow = token['authflow']
 if args.authflow:
