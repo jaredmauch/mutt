@@ -66,8 +66,8 @@ registrations = {
         'scope': ('offline_access https://outlook.office.com/IMAP.AccessAsUser.All '
                   'https://outlook.office.com/POP.AccessAsUser.All '
                   'https://outlook.office.com/SMTP.Send'),
-        'client_id': '', # '08162f7c-0fd2-4200-a84a-f25a4db0b584',
-        'client_secret': '', # 'TxRBilcHdC6WGBee]fs?QR:SJ8nI[g82',
+        'client_id': '',
+        'client_secret': '',
     },
 }
 
