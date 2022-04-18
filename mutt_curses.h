@@ -87,6 +87,7 @@ event_t mutt_getch (void);
 
 void mutt_getch_timeout (int);
 void mutt_endwin (const char *);
+void mutt_flush_macro_on_error (void);
 void mutt_flushinp (void);
 void mutt_refresh (void);
 void mutt_resize_screen (void);
