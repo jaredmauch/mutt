@@ -91,7 +91,8 @@ ap.add_argument('-v', '--verbose', action='store_true', help='increase verbosity
 ap.add_argument('-d', '--debug', action='store_true', help='enable debug output')
 ap.add_argument('tokenfile', help='persistent token storage')
 ap.add_argument('-a', '--authorize', action='store_true', help='manually authorize new tokens')
-ap.add_argument('--authflow', help='authcode | localhostauthcode | devicecode')
+ap.add_argument('--authflow', choices=['authcode', 'localhostauthcode', 'devicecode'],
+                help='method to access a URL and obtain resulting authorization code')
 ap.add_argument('-t', '--test', action='store_true', help='test IMAP/POP/SMTP endpoints')
 args = ap.parse_args()
 
