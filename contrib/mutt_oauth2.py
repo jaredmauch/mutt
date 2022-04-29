@@ -39,6 +39,7 @@ import socket
 import http.server
 import subprocess
 import readline
+import webbrowser
 
 # The token file must be encrypted because it contains multi-use bearer tokens
 # whose usage does not require additional verification. Specify whichever
@@ -193,14 +194,17 @@ if args.authorize:
                   'redirect_uri': redirect_uri,
                   'code_challenge': challenge,
                   'code_challenge_method': 'S256'})
-        print(registration["authorize_endpoint"] + '?' +
-              urllib.parse.urlencode(p, quote_via=urllib.parse.quote))
+        endpoint = registration['authorize_endpoint']
+        query = urllib.parse.urlencode(p, quote_via=urllib.parse.quote)
+        url = f'{endpoint}?{query}'
+        print(url)
 
         authcode = ''
         if authflow == 'authcode':
             authcode = input('Visit displayed URL to retrieve authorization code. Enter '
                              'code from server (might be in browser address bar): ')
         else:
+            webbrowser.open(url)
             print('Visit displayed URL to authorize this application. Waiting...',
                   end='', flush=True)
 
