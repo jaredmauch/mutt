@@ -288,3 +288,26 @@ mutt. Your .muttrc would look something like:
  set smtp_authenticators=${imap_authenticators}
  set smtp_oauth_refresh_command=${imap_oauth_refresh_command}
 
+
+Usage with other mail clients
+-----------------------------
+
+mutt_oauth2.py can be used to provide OAuth2 tokens to other mail client
+applications which support OAUTHBEARER or XOAUTH2 authentication.
+
+ - msmtp
+
+Starting with version 1.8.13 msmtp supports OAUTHBEARER and XOAUTH2
+authentication.
+
+Sample .msmtprc contents:
+ defaults
+ tls on
+
+ account default
+ host smtp.gmail.com
+ port 587
+ auth oauthbearer
+ user myname@gmail.com
+ from myname@gmail.com
+ passwordeval /path/to/script/mutt_oauth2.py /home/user/myname@gmail.com.tokens
