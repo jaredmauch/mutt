@@ -95,6 +95,8 @@ ap.add_argument('-a', '--authorize', action='store_true', help='manually authori
 ap.add_argument('--authflow', choices=['authcode', 'localhostauthcode', 'devicecode'],
                 help='method to access a URL and obtain resulting authorization code')
 ap.add_argument('-t', '--test', action='store_true', help='test IMAP/POP/SMTP endpoints')
+ap.add_argument('-o', '--output', choices=['token', 'xoauth2-b64'], default='token',
+                help='output format. (default: token)')
 args = ap.parse_args()
 
 token = {}
@@ -363,7 +365,15 @@ if not access_token_valid():
 
 if args.verbose:
     print('Access Token: ', end='')
-print(token['access_token'])
+if args.output == 'token':
+    output = token['access_token']
+elif args.output == 'xoauth2-b64':
+    # pylint: disable=C0209
+    auth_string = 'user={email}\1auth=Bearer {access_token}\1\1'.format(**token)
+    output = base64.b64encode(auth_string.encode()).decode()
+else:
+    raise Exception(f'unhandled output format : {args.output}')
+print(output)
 
 
 def build_sasl_string(user, host, port, bearer_token):
