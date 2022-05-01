@@ -242,15 +242,17 @@ if args.authorize:
                   'code_verifier': verifier})
         print('Exchanging the authorization code for an access token')
         try:
-            response = urllib.request.urlopen(registration['token_endpoint'],
-                                              urllib.parse.urlencode(p).encode())
+            http_response = urllib.request.urlopen(registration['token_endpoint'],
+                                                   urllib.parse.urlencode(p).encode())
         except urllib.error.HTTPError as err:
             print(err.code, err.reason)
-            response = err
-        response = response.read()
+            body = err.read()
+        else:
+            with http_response:
+                body = http_response.read()
         if args.debug:
-            print(response)
-        response = json.loads(response)
+            print(body)
+        response = json.loads(body)
         if 'error' in response:
             print(response['error'])
             if 'error_description' in response:
@@ -259,15 +261,17 @@ if args.authorize:
 
     elif authflow == 'devicecode':
         try:
-            response = urllib.request.urlopen(registration['devicecode_endpoint'],
-                                              urllib.parse.urlencode(p).encode())
+            http_response = urllib.request.urlopen(registration['devicecode_endpoint'],
+                                                   urllib.parse.urlencode(p).encode())
         except urllib.error.HTTPError as err:
             print(err.code, err.reason)
-            response = err
-        response = response.read()
+            body = err.read()
+        else:
+            with http_response:
+                body = http_response.read()
         if args.debug:
-            print(response)
-        response = json.loads(response)
+            print(body)
+        response = json.loads(body)
         if 'error' in response:
             print(response['error'])
             if 'error_description' in response:
@@ -284,15 +288,17 @@ if args.authorize:
             time.sleep(interval)
             print('.', end='', flush=True)
             try:
-                response = urllib.request.urlopen(registration['token_endpoint'],
-                                                  urllib.parse.urlencode(p).encode())
+                http_response = urllib.request.urlopen(registration['token_endpoint'],
+                                                       urllib.parse.urlencode(p).encode())
             except urllib.error.HTTPError as err:
                 # Not actually always an error, might just mean "keep trying..."
-                response = err
-            response = response.read()
+                body = err.read()
+            else:
+                with http_response:
+                    body = http_response.read()
             if args.debug:
-                print(response)
-            response = json.loads(response)
+                print(body)
+            response = json.loads(body)
             if 'error' not in response:
                 break
             if response['error'] == 'authorization_declined':
@@ -326,15 +332,17 @@ if not access_token_valid():
               'refresh_token': token['refresh_token'],
               'grant_type': 'refresh_token'})
     try:
-        response = urllib.request.urlopen(registration['token_endpoint'],
-                                          urllib.parse.urlencode(p).encode())
+        http_response = urllib.request.urlopen(registration['token_endpoint'],
+                                               urllib.parse.urlencode(p).encode())
     except urllib.error.HTTPError as err:
         print(err.code, err.reason)
-        response = err
-    response = response.read()
+        body = err.read()
+    else:
+        with http_response:
+            body = http_response.read()
     if args.debug:
-        print(response)
-    response = json.loads(response)
+        print(body)
+    response = json.loads(body)
     if 'error' in response:
         print(response['error'])
         if 'error_description' in response:
