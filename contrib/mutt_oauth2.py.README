@@ -311,3 +311,18 @@ Sample .msmtprc contents:
  user myname@gmail.com
  from myname@gmail.com
  passwordeval /path/to/script/mutt_oauth2.py /home/user/myname@gmail.com.tokens
+
+ - imapfilter
+
+Starting with version 2.6.4 imapfilter supports XOAUTH2 authentication. It
+must be provided with the token in the literal form used in the XOAUTH2
+protocol.
+
+Sample config.lua contents:
+ status, token = pipe_from("/path/to/script/mutt_oauth2.py --output xoauth2-b64 /home/user/myname@gmail.com.tokens")
+ gmail = IMAP {
+     server = "imap.gmail.com",
+     username = "myname@gmail.com",
+     oauth2 = token,
+     ssl = "auto",
+ }
