@@ -222,7 +222,7 @@ if args.authorize:
                     if 'code' in querydict:
                         authcode = querydict['code'][0]
                     self.do_HEAD()
-                    self.wfile.write(b'<html><head><title>Authorizaton result</title></head>')
+                    self.wfile.write(b'<html><head><title>Authorization result</title></head>')
                     self.wfile.write(b'<body><p>Authorization redirect completed. You may '
                                      b'close this window.</p></body></html>')
             with http.server.HTTPServer(('127.0.0.1', listen_port), MyHandler) as httpd:
