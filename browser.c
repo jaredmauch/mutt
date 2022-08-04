@@ -1333,11 +1333,11 @@ void _mutt_buffer_select_file (BUFFER *f, int flags, char ***files, int *numfile
 	  /* assume that the user wants to see everything */
 	  if (!(mutt_buffer_len (buf)))
 	    mutt_buffer_strcpy (buf, ".");
-	  SKIPWS (s);
+	  SKIP_LOCALE_WS (s);
 	  if (*s == '!')
 	  {
 	    s++;
-	    SKIPWS (s);
+	    SKIP_LOCALE_WS (s);
 	    not = 1;
 	  }
 
