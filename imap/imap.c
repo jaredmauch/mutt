@@ -1804,7 +1804,8 @@ int imap_check_mailbox (CONTEXT *ctx, int *index_hint, int force)
   }
 
   if ((force ||
-       (idata->state != IMAP_IDLE && time(NULL) >= idata->lastread + Timeout))
+       (idata->state != IMAP_IDLE &&
+        Timeout > 0 && time(NULL) >= idata->lastread + Timeout))
       && imap_exec (idata, "NOOP", IMAP_CMD_POLL) != 0)
     goto errcleanup;
 
