@@ -34,14 +34,15 @@ static const char *next_word (const char *s)
   return s;
 }
 
-int mutt_check_month (const char *s)
+static const char *prev_word (const char * const bos, const char *cur)
 {
-  int i;
-
-  for (i = 0; i < 12; i++)
-    if (mutt_strncasecmp (s, Months[i], 3) == 0)
-      return (i);
-  return (-1); /* error */
+  if (cur <= bos)
+    return bos;
+  while (cur > bos && *(cur-1) && ISSPACE (*(cur-1)))
+    cur--;
+  while (cur > bos && *(cur-1) && !ISSPACE (*(cur-1)))
+    cur--;
+  return cur;
 }
 
 static int is_day_name (const char *s)
@@ -56,29 +57,43 @@ static int is_day_name (const char *s)
   return 0;
 }
 
-/*
- * A valid message separator looks like:
- *
- * From [ <return-path> ] <weekday> <month> <day> <time> [ <timezone> ] <year>
- */
-
-int is_from (const char *s, char *path, size_t pathlen, time_t *tp)
+int mutt_check_month (const char *s)
 {
-  struct tm tm;
+  int i;
+
+  for (i = 0; i < 12; i++)
+    if (mutt_strncasecmp (s, Months[i], 3) == 0)
+      return (i);
+  return (-1); /* error */
+}
+
+static int check_time (const char *s, struct tm *tm)
+{
+  int rv = 0;
+  /* Accept either HH:MM or HH:MM:SS */
+  if (sscanf (s, "%d:%d:%d", &tm->tm_hour, &tm->tm_min, &tm->tm_sec) == 3)
+    ;
+  else if (sscanf (s, "%d:%d", &tm->tm_hour, &tm->tm_min) == 2)
+    tm->tm_sec = 0;
+  else
+    rv = -1;
+
+  return rv;
+}
+
+static int check_year (const char *s)
+{
   int yr;
 
-  if (path)
-    *path = 0;
+  if (sscanf (s, "%d", &yr) != 1 || yr < 0)
+    return -1;
+  return yr > 1900 ? yr - 1900 : (yr < 70 ? yr + 100 : yr);
+}
 
-  if (mutt_strncmp ("From ", s, 5) != 0)
-    return 0;
-
-  s = next_word (s); /* skip over the From part. */
-  if (!*s)
-    return 0;
-
-  dprint (3, (debugfile, "\nis_from(): parsing: %s", s));
-
+static int is_from_forward_scan (const char *s,
+                                 char *path, size_t pathlen,
+                                 struct tm *tm)
+{
   if (!is_day_name (s))
   {
     const char *p;
@@ -106,7 +121,7 @@ int is_from (const char *s, char *path, size_t pathlen, time_t *tp)
       p = strchr(p + 4, ' ');
       if (!p)
       {
-	dprint (1, (debugfile, "is_from(): error parsing what appears to be a pipermail-style obscured return_path: %s\n", s));
+	dprint (1, (debugfile, "is_from_forward_scan(): error parsing what appears to be a pipermail-style obscured return_path: %s\n", s));
 	return 0;
       }
     }
@@ -118,7 +133,7 @@ int is_from (const char *s, char *path, size_t pathlen, time_t *tp)
 	len = pathlen - 1;
       memcpy (path, s, len);
       path[len] = 0;
-      dprint (3, (debugfile, "is_from(): got return path: %s\n", path));
+      dprint (3, (debugfile, "is_from_forward_scan(): got return path: %s\n", path));
     }
 
     s = p + 1;
@@ -128,7 +143,7 @@ int is_from (const char *s, char *path, size_t pathlen, time_t *tp)
 
     if (!is_day_name (s))
     {
-      dprint(1, (debugfile, "is_from():  expected weekday, got: %s\n", s));
+      dprint(1, (debugfile, "is_from_forward_scan():  expected weekday, got: %s\n", s));
       return 0;
     }
   }
@@ -147,28 +162,27 @@ int is_from (const char *s, char *path, size_t pathlen, time_t *tp)
   }
 
   /* now we should be on the month. */
-  if ((tm.tm_mon = mutt_check_month (s)) < 0) return 0;
+  if ((tm->tm_mon = mutt_check_month (s)) < 0)
+    return 0;
 
   /* day */
   s = next_word (s);
-  if (!*s) return 0;
-  if (sscanf (s, "%d", &tm.tm_mday) != 1) return 0;
+  if (!*s)
+    return 0;
+  if (sscanf (s, "%d", &tm->tm_mday) != 1)
+    return 0;
 
   /* time */
   s = next_word (s);
-  if (!*s) return 0;
-
-  /* Accept either HH:MM or HH:MM:SS */
-  if (sscanf (s, "%d:%d:%d", &tm.tm_hour, &tm.tm_min, &tm.tm_sec) == 3);
-  else if (sscanf (s, "%d:%d", &tm.tm_hour, &tm.tm_min) == 2)
-    tm.tm_sec = 0;
-  else
+  if (!*s)
+    return 0;
+  if (check_time (s, tm) < 0)
     return 0;
 
-  s = next_word (s);
-  if (!*s) return 0;
-
   /* timezone? */
+  s = next_word (s);
+  if (!*s)
+    return 0;
   if (isalpha ((unsigned char) *s) || *s == '+' || *s == '-')
   {
     s = next_word (s);
@@ -186,15 +200,136 @@ int is_from (const char *s, char *path, size_t pathlen, time_t *tp)
   }
 
   /* year */
-  if (sscanf (s, "%d", &yr) != 1 || yr < 0) return 0;
-  tm.tm_year = yr > 1900 ? yr - 1900 : (yr < 70 ? yr + 100 : yr);
+  if ((tm->tm_year = check_year (s)) < 0)
+    return 0;
 
-  dprint (3,(debugfile, "is_from(): month=%d, day=%d, hr=%d, min=%d, sec=%d, yr=%d.\n",
-	     tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, tm.tm_year));
+  return 1;
+}
 
-  tm.tm_isdst = -1;
+static int is_from_reverse_scan (const char * const bos,
+                                 char *path, size_t pathlen,
+                                 struct tm *tm)
+{
+  const char *cur = bos;
 
-  if (tp) *tp = mutt_mktime (&tm, 0);
+  cur = strchr (bos, '\0');
+
+  /* year */
+  cur = prev_word (bos, cur);
+  if (cur == bos)
+    return 0;
+  if ((tm->tm_year = check_year (cur)) < 0)
+    return 0;
+
+  /* timezone? */
+  cur = prev_word (bos, cur);
+  if (cur == bos)
+    return 0;
+  if (isalpha ((unsigned char) *cur) || *cur == '+' || *cur == '-')
+  {
+    cur = prev_word (bos, cur);
+    if (cur == bos)
+      return 0;
+
+    /*
+     * some places have two timezone fields after the time, e.g.
+     *      From xxxx@yyyyyyy.fr Wed Aug  2 00:39:12 MET DST 1995
+     */
+    if (isalpha ((unsigned char) *cur))
+    {
+      cur = prev_word (bos, cur);
+      if (cur == bos)
+        return 0;
+    }
+  }
+
+  /* time */
+  if (check_time (cur, tm) < 0)
+    return 0;
+
+  /* day */
+  cur = prev_word (bos, cur);
+  if (cur == bos)
+    return 0;
+  if (sscanf (cur, "%d", &tm->tm_mday) != 1)
+    return 0;
+
+  /* month */
+  cur = prev_word (bos, cur);
+  if (cur == bos)
+    return 0;
+  if ((tm->tm_mon = mutt_check_month (cur)) < 0)
+    return 0;
+
+  /* day name */
+  cur = prev_word (bos, cur);
+  if (!is_day_name (cur))
+  {
+    dprint(1, (debugfile,
+               "is_from_reverse_scan():  expected weekday, got: %s\n", cur));
+    return 0;
+  }
+
+  /* return path? */
+  while (cur > bos && *(cur-1) && ISSPACE (*(cur-1)))
+    cur--;
+  if (cur != bos && path)
+  {
+    size_t len;
+
+    len = (size_t) (cur - bos);
+    if (len + 1 > pathlen)
+      len = pathlen - 1;
+    memcpy (path, bos, len);
+    path[len] = 0;
+    dprint (3, (debugfile, "is_from_reverse_scan(): got return path: %s\n", path));
+  }
+
+  return 1;
+}
+
+
+/*
+ * A valid message separator looks like:
+ *
+ * From [ <return-path> ] <weekday> <month> <day> <time> [ <timezone> ] <year>
+ */
+
+int is_from (const char *s, char *path, size_t pathlen, time_t *tp)
+{
+  struct tm tm;
+  int rv;
+
+  if (path)
+    *path = 0;
+  if (tp)
+    *tp = 0;
+
+  if (mutt_strncmp ("From ", s, 5) != 0)
+    return 0;
+
+  s = next_word (s); /* skip over the From part. */
+  if (!*s)
+    return 0;
+
+  dprint (3, (debugfile, "\nis_from(): parsing: %s", s));
+
+  rv = option (OPTMBOXLAXPARSE) ?
+    is_from_reverse_scan (s, path, pathlen, &tm) :
+    is_from_forward_scan (s, path, pathlen, &tm);
+  if (!rv)
+    return 0;
+
+  dprint (3, (debugfile,
+              "is_from(): month=%d, day=%d, hr=%d, min=%d, sec=%d, yr=%d.\n",
+              tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, tm.tm_year));
+
+  if (tp)
+  {
+    tm.tm_isdst = -1;
+    *tp = mutt_mktime (&tm, 0);
+  }
+
   return 1;
 }
 

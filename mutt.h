@@ -501,6 +501,7 @@ enum
   OPTMAILDIRCHECKCUR,
   OPTMARKERS,
   OPTMARKOLD,
+  OPTMBOXLAXPARSE,
   OPTMENUSCROLL,	/* scroll menu instead of implicit next-page */
   OPTMENUMOVEOFF,	/* allow menu to scroll past last entry */
 #if defined(USE_IMAP) || defined(USE_POP)

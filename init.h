@@ -2126,6 +2126,10 @@ struct option_t MuttVars[] = {
   ** .pp
   ** Also see the $$move variable.
   */
+  { "mbox_lax_parse",	DT_BOOL, R_NONE, {.l=OPTMBOXLAXPARSE}, {.l=1} },
+  /*
+  ** .pp
+  */
   { "mbox_type",	DT_MAGIC,R_NONE, {.p=&DefaultMagic}, {.l=MUTT_MBOX} },
   /*
   ** .pp
