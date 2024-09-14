@@ -55,16 +55,16 @@ DEFAULT_CSS += '''
     border-left: 2px solid #eee;
 }
 .quote, blockquote {
-    padding: 0 0.5em;
-    margin: 0;
+    /* Gmail style */
+    padding: 0 7px 0 7px;
+    border-left: 2px solid #cccccc;
     font-style: italic;
-    border-left: 2px solid #666;
-    color: #666;
-    font-size: 80%;
+    margin: 0 0 7px 3px;
+    font-size: 90%;
 }
 .quotelead {
     margin-bottom: -1em;
-    font-size: 80%;
+    font-size: 90%;
 }
 .quotechar { display: none; }
 .footnote-ref, .footnote-back { text-decoration: none;}
@@ -73,20 +73,16 @@ DEFAULT_CSS += '''
     font-family: monospace;
     white-space: pre;
     margin: 1em 0 0 0;
-    font-size: 80%;
+    font-size: 90%;
 }
 table, th, td {
     border-collapse: collapse;
     border: 1px solid #999;
 }
 th, td { padding: 0.5em; }
-.header {
-    background: #eee;
-}
 .even { background: #eee; }
 h1, h2, h3, h4, h5, h6 {
     color: #666;
-    background-color: #eee;
     padding-left: 0.5em
 }
 h1 { font-size: 130%; }
