@@ -117,19 +117,16 @@ Configure script's token file encryption
 ----------------------------------------
 
 The script remembers tokens between invocations by keeping them in a
-token file. This file is encrypted. Inside the script are two lines
-  ENCRYPTION_PIPE
-  DECRYPTION_PIPE
-that must be edited to specify your choice of encryption system. A
-popular choice is gpg. To use this:
+token file. This file is encrypted with a gpg key that is passed to the
+mutt_oauth2.py script. To use this:
 
  - Install gpg. For example, "sudo apt install gpg".
  - "gpg --gen-key". Answer the questions. Instead of your email
    address you could choose say "My mutt_oauth2 token store", then
    choose a passphrase. You will need to produce that same passphrase
    whenever mutt_oauth2 needs to unlock the token store.
- - Edit mutt_oauth2.py and put your GPG identity (your email address or
-   whatever you picked above) in the ENCRYPTION_PIPE line.
+ - Whenever calling mutt_oauth2.py pass your GPG identity (your email address
+   or whatever you picked above) via the --gpg-identity command line flag.
  - For the gpg-agent to be able to ask you the unlock passphrase,
    the environment variable GPG_TTY must be set to the current tty.
    Typically you would put the following inside your .bashrc or equivalent:
@@ -153,11 +150,11 @@ which and blessing by the cloud provider might require payment and/or arduous
 review), or might perhaps be willing to roll their own "in-house" registration.
 
 What you ultimately need is the "client_id" (and "client_secret" if
-one was set) for this registration. Those values must be edited into
-the mutt_oauth2.py script.  If your work or school environment has a
-knowledge base that provides the client_id, then someone already took
-care of the app registration, and you can skip the step of creating
-your own registration.
+one was set) for this registration. Those values will also be passed via
+command line arguments to the mutt_oauth2.py script.  If your work or school
+environment has a knowledge base that provides the client_id, then someone
+already took care of the app registration, and you can skip the step of
+creating your own registration.
 
 
 -- How to create a Google registration --
@@ -176,10 +173,6 @@ matter and could be "mutt registration project".
  - Back at console.developers.google.com, choose Credentials
  - At top, choose Create Credentials / OAuth2 client iD
    - Application type is "Desktop app"
-
-Edit the client_id (and client_secret if there is one) into the
-mutt_oauth2.py script.
-
 
 -- How to create a Microsoft registration --
 
@@ -224,10 +217,10 @@ initial set of tokens, run the script specifying a name for a
 disposable token storage file, as well as "--authorize", for example
 using this naming scheme:
 
- mutt_oauth2.py userid@myschool.edu.tokens --verbose --authorize
+ mutt_oauth2.py userid@myschool.edu.tokens.gpg --verbose --authorize
 
-The script will ask questions and provide some instructions. For the
-flow question:
+The script will ask questions and provide some instructions (or you can pass
+options directly via command line parameters). For the flow question:
 
  - "authcode": you paste a complicated URL into a browser, then
 manually extract a "code" parameter from a subsequent URL in the
