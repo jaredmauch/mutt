@@ -63,11 +63,10 @@ registrations = {
         'client_secret': '',
     },
     'microsoft': {
-        'authorize_endpoint': 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
-        'devicecode_endpoint': 'https://login.microsoftonline.com/common/oauth2/v2.0/devicecode',
-        'token_endpoint': 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
-        'redirect_uri': 'https://login.microsoftonline.com/common/oauth2/nativeclient',
-        'tenant': 'common',
+        'authorize_endpoint': 'https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize',
+        'devicecode_endpoint': 'https://login.microsoftonline.com/{tenant}/oauth2/v2.0/devicecode',
+        'token_endpoint': 'https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token',
+        'redirect_uri': 'https://login.microsoftonline.com/{tenant}/oauth2/nativeclient',
         'imap_endpoint': 'outlook.office365.com',
         'pop_endpoint': 'outlook.office365.com',
         'smtp_endpoint': 'smtp.office365.com',
@@ -131,6 +130,8 @@ if not token:
     token['authflow'] = input('Preferred OAuth2 flow ("authcode" or "localhostauthcode" '
                               'or "devicecode"): ')
     token['email'] = input('Account e-mail address: ')
+    token['tenant'] = input('Tenant (Valid values are common, organizations, consumers, '
+                            'and tenant identifiers. Default common.): ') or 'common'
     token['access_token'] = ''
     token['access_token_expiration'] = ''
     token['refresh_token'] = ''
@@ -146,9 +147,14 @@ if args.authflow:
     authflow = args.authflow
 
 baseparams = {'client_id': registration['client_id']}
+
 # Microsoft uses 'tenant' but Google does not
-if 'tenant' in registration:
-    baseparams['tenant'] = registration['tenant']
+if token['registration'] == 'microsoft':
+    token['tenant'] = token['tenant'] or 'common'
+    registrations['microsoft']['authorize_endpoint'] = registrations['microsoft']['authorize_endpoint'].format(tenant = token['tenant'])
+    registrations['microsoft']['devicecode_endpoint'] = registrations['microsoft']['devicecode_endpoint'].format(tenant = token['tenant'])
+    registrations['microsoft']['token_endpoint'] = registrations['microsoft']['token_endpoint'].format(tenant = token['tenant'])
+    registrations['microsoft']['redirect_uri'] = registrations['microsoft']['redirect_uri'].format(tenant = token['tenant'])
 
 
 def access_token_valid():
