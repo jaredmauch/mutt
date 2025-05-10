@@ -2078,14 +2078,18 @@ static char *unfold_header (char *s)
     if (*p == '\r' && *(p + 1) && *(p + 1) == '\n' && *(p + 2) &&
 	(*(p + 2) == ' ' || *(p + 2) == '\t'))
     {
-      *q++ = ' ';
+      // only add space if previous break was not on a comma
+      if (!(*(p - 1) && *(p - 1) == ','))
+        *q++ = ' ';
       p += 3;
       continue;
     }
     /* remove LF prior to FWSP, turn \t into ' ' */
     else if (*p == '\n' && *(p + 1) && (*(p + 1) == ' ' || *(p + 1) == '\t'))
     {
-      *q++ = ' ';
+      // only add space if previous break was not on a comma
+      if (!(*(p - 1) && *(p - 1) == ','))
+        *q++ = ' ';
       p += 2;
       continue;
     }
