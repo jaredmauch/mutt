@@ -39,6 +39,7 @@ import socket
 import http.server
 import subprocess
 import readline
+import webbrowser
 
 # The token file must be encrypted because it contains multi-use bearer tokens
 # whose usage does not require additional verification. Specify whichever
@@ -91,8 +92,11 @@ ap.add_argument('-v', '--verbose', action='store_true', help='increase verbosity
 ap.add_argument('-d', '--debug', action='store_true', help='enable debug output')
 ap.add_argument('tokenfile', help='persistent token storage')
 ap.add_argument('-a', '--authorize', action='store_true', help='manually authorize new tokens')
-ap.add_argument('--authflow', help='authcode | localhostauthcode | devicecode')
+ap.add_argument('--authflow', choices=['authcode', 'localhostauthcode', 'devicecode'],
+                help='method to access a URL and obtain resulting authorization code')
 ap.add_argument('-t', '--test', action='store_true', help='test IMAP/POP/SMTP endpoints')
+ap.add_argument('-o', '--output', choices=['token', 'xoauth2-b64'], default='token',
+                help='output format. (default: token)')
 args = ap.parse_args()
 
 token = {}
@@ -192,14 +196,17 @@ if args.authorize:
                   'redirect_uri': redirect_uri,
                   'code_challenge': challenge,
                   'code_challenge_method': 'S256'})
-        print(registration["authorize_endpoint"] + '?' +
-              urllib.parse.urlencode(p, quote_via=urllib.parse.quote))
+        endpoint = registration['authorize_endpoint']
+        query = urllib.parse.urlencode(p, quote_via=urllib.parse.quote)
+        url = f'{endpoint}?{query}'
+        print(url)
 
         authcode = ''
         if authflow == 'authcode':
             authcode = input('Visit displayed URL to retrieve authorization code. Enter '
                              'code from server (might be in browser address bar): ')
         else:
+            webbrowser.open(url)
             print('Visit displayed URL to authorize this application. Waiting...',
                   end='', flush=True)
 
@@ -222,7 +229,7 @@ if args.authorize:
                     if 'code' in querydict:
                         authcode = querydict['code'][0]
                     self.do_HEAD()
-                    self.wfile.write(b'<html><head><title>Authorizaton result</title></head>')
+                    self.wfile.write(b'<html><head><title>Authorization result</title></head>')
                     self.wfile.write(b'<body><p>Authorization redirect completed. You may '
                                      b'close this window.</p></body></html>')
             with http.server.HTTPServer(('127.0.0.1', listen_port), MyHandler) as httpd:
@@ -242,15 +249,17 @@ if args.authorize:
                   'code_verifier': verifier})
         print('Exchanging the authorization code for an access token')
         try:
-            response = urllib.request.urlopen(registration['token_endpoint'],
-                                              urllib.parse.urlencode(p).encode())
+            http_response = urllib.request.urlopen(registration['token_endpoint'],
+                                                   urllib.parse.urlencode(p).encode())
         except urllib.error.HTTPError as err:
             print(err.code, err.reason)
-            response = err
-        response = response.read()
+            body = err.read()
+        else:
+            with http_response:
+                body = http_response.read()
         if args.debug:
-            print(response)
-        response = json.loads(response)
+            print(body)
+        response = json.loads(body)
         if 'error' in response:
             print(response['error'])
             if 'error_description' in response:
@@ -259,15 +268,17 @@ if args.authorize:
 
     elif authflow == 'devicecode':
         try:
-            response = urllib.request.urlopen(registration['devicecode_endpoint'],
-                                              urllib.parse.urlencode(p).encode())
+            http_response = urllib.request.urlopen(registration['devicecode_endpoint'],
+                                                   urllib.parse.urlencode(p).encode())
         except urllib.error.HTTPError as err:
             print(err.code, err.reason)
-            response = err
-        response = response.read()
+            body = err.read()
+        else:
+            with http_response:
+                body = http_response.read()
         if args.debug:
-            print(response)
-        response = json.loads(response)
+            print(body)
+        response = json.loads(body)
         if 'error' in response:
             print(response['error'])
             if 'error_description' in response:
@@ -284,15 +295,17 @@ if args.authorize:
             time.sleep(interval)
             print('.', end='', flush=True)
             try:
-                response = urllib.request.urlopen(registration['token_endpoint'],
-                                                  urllib.parse.urlencode(p).encode())
+                http_response = urllib.request.urlopen(registration['token_endpoint'],
+                                                       urllib.parse.urlencode(p).encode())
             except urllib.error.HTTPError as err:
                 # Not actually always an error, might just mean "keep trying..."
-                response = err
-            response = response.read()
+                body = err.read()
+            else:
+                with http_response:
+                    body = http_response.read()
             if args.debug:
-                print(response)
-            response = json.loads(response)
+                print(body)
+            response = json.loads(body)
             if 'error' not in response:
                 break
             if response['error'] == 'authorization_declined':
@@ -326,15 +339,17 @@ if not access_token_valid():
               'refresh_token': token['refresh_token'],
               'grant_type': 'refresh_token'})
     try:
-        response = urllib.request.urlopen(registration['token_endpoint'],
-                                          urllib.parse.urlencode(p).encode())
+        http_response = urllib.request.urlopen(registration['token_endpoint'],
+                                               urllib.parse.urlencode(p).encode())
     except urllib.error.HTTPError as err:
         print(err.code, err.reason)
-        response = err
-    response = response.read()
+        body = err.read()
+    else:
+        with http_response:
+            body = http_response.read()
     if args.debug:
-        print(response)
-    response = json.loads(response)
+        print(body)
+    response = json.loads(body)
     if 'error' in response:
         print(response['error'])
         if 'error_description' in response:
@@ -350,7 +365,15 @@ if not access_token_valid():
 
 if args.verbose:
     print('Access Token: ', end='')
-print(token['access_token'])
+if args.output == 'token':
+    output = token['access_token']
+elif args.output == 'xoauth2-b64':
+    # pylint: disable=C0209
+    auth_string = 'user={email}\1auth=Bearer {access_token}\1\1'.format(**token)
+    output = base64.b64encode(auth_string.encode()).decode()
+else:
+    raise Exception(f'unhandled output format : {args.output}')
+print(output)
 
 
 def build_sasl_string(user, host, port, bearer_token):

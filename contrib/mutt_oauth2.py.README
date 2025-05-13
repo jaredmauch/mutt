@@ -288,3 +288,66 @@ mutt. Your .muttrc would look something like:
  set smtp_authenticators=${imap_authenticators}
  set smtp_oauth_refresh_command=${imap_oauth_refresh_command}
 
+
+Usage with other mail clients
+-----------------------------
+
+mutt_oauth2.py can be used to provide OAuth2 tokens to other mail client
+applications which support OAUTHBEARER or XOAUTH2 authentication.
+
+ - msmtp
+
+Starting with version 1.8.13 msmtp supports OAUTHBEARER and XOAUTH2
+authentication.
+
+Sample .msmtprc contents:
+ defaults
+ tls on
+
+ account default
+ host smtp.gmail.com
+ port 587
+ auth oauthbearer
+ user myname@gmail.com
+ from myname@gmail.com
+ passwordeval /path/to/script/mutt_oauth2.py /home/user/myname@gmail.com.tokens
+
+ - imapfilter
+
+Starting with version 2.6.4 imapfilter supports XOAUTH2 authentication. It
+must be provided with the token in the literal form used in the XOAUTH2
+protocol.
+
+Sample config.lua contents:
+ status, token = pipe_from("/path/to/script/mutt_oauth2.py --output xoauth2-b64 /home/user/myname@gmail.com.tokens")
+ gmail = IMAP {
+     server = "imap.gmail.com",
+     username = "myname@gmail.com",
+     oauth2 = token,
+     ssl = "auto",
+ }
+
+ - isync / mbsync
+
+mbsync support for OAuth2 depends on libsasl. The size of the buffer used for
+the OAuth2 token in mbsync was increased to 2KiB in isync release 1.3.2 and
+then to 8KiB in 1.3.3.
+
+The following library implements a SASL XOAUTH2 authentication module:
+https://github.com/moriyoshi/cyrus-sasl-xoauth2
+
+Once installed, support can be confirmed using `saslpluginviewer -c -m XOAUTH2`:
+ [...]
+ List of client plugins follows
+ Plugin "xoauth2" [loaded], API version: 4
+     SASL mechanism: XOAUTH2, best SSF: 0
+     security flags: NO_ANONYMOUS|PASS_CREDENTIALS
+     features: WANT_CLIENT_FIRST|PROXY_AUTHENTICATION
+
+Sample .mbsyncrc contents:
+ IMAPAccount gmail
+ SSLType IMAPS
+ Host imap.gmail.com
+ User myname@gmail.com
+ AuthMechs XOAUTH2
+ PassCmd "/path/to/script/mutt_oauth2.py /home/user/myname@gmail.com.tokens"
