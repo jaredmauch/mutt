@@ -2248,13 +2248,11 @@ static int send_message_resume_first_edit (SEND_CONTEXT *sctx)
    * 2) pgp: header field was present during message editing with $edit_headers (sctx->msg->security != 0)
    * 3) we are resending a message
    * 4) we are recalling a postponed message (don't override the user's saved settings)
-   * 5) we are in mailx mode
-   * 6) we are in batch mode
    *
    * This is done after allowing the user to edit the message so that security
    * settings can be configured with send2-hook and $edit_headers.
    */
-  if (WithCrypto && (sctx->msg->security == 0) && !(sctx->flags & (SENDBATCH | SENDMAILX | SENDPOSTPONED | SENDRESEND)))
+  if (WithCrypto && (sctx->msg->security == 0) && !(sctx->flags & (SENDPOSTPONED | SENDRESEND)))
   {
     if (
 #ifdef USE_AUTOCRYPT
