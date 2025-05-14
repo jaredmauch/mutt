@@ -48,19 +48,23 @@ except ImportError:
 
 
 DEFAULT_CSS += '''
-.quote {
+.block {
     padding: 0 0.5em;
     margin: 0;
     font-style: italic;
-    border-left: 2px solid #ccc;
-    color: #999;
-    font-size: 80%;
+    border-left: 2px solid #eee;
+}
+.quote, blockquote {
+    /* Gmail style */
+    padding: 0 7px 0 7px;
+    border-left: 2px solid #cccccc;
+    font-style: italic;
+    margin: 0 0 7px 3px;
+    font-size: 90%;
 }
 .quotelead {
-    font-style: italic;
     margin-bottom: -1em;
-    color: #999;
-    font-size: 80%;
+    font-size: 90%;
 }
 .quotechar { display: none; }
 .footnote-ref, .footnote-back { text-decoration: none;}
@@ -69,17 +73,26 @@ DEFAULT_CSS += '''
     font-family: monospace;
     white-space: pre;
     margin: 1em 0 0 0;
-    font-size: 80%;
+    font-size: 90%;
 }
 table, th, td {
     border-collapse: collapse;
     border: 1px solid #999;
 }
 th, td { padding: 0.5em; }
-.header {
-    background: #eee;
-}
 .even { background: #eee; }
+h1, h2, h3, h4, h5, h6 {
+    color: #666;
+    padding-left: 0.5em
+}
+h1 { font-size: 130%; }
+h2 { font-size: 120%; }
+h3 { font-size: 110%; }
+h4 { font-size: 107%; }
+h5 { font-size: 103%; }
+h6 { font-size: 100%; }
+p { padding: 0 0.5em; }
+pre { padding: 0 1em; }
 '''
 
 STYLESHEET = os.path.join(os.path.expanduser('~/.mutt'),
@@ -118,6 +131,36 @@ def _preprocess_markdown(mdwn):
     # to actually hide it from display. However, this does not work with the
     # text-mode HTML2text converters, and so it's left commented for now.
     #ret = re.sub(r'\n>', r'  \n>[>]{.quotechar}', ret, flags=re.MULTILINE)
+
+    # add line break between two lines that have  different numbers of
+    # initial quote markers > so that
+    #
+    # > line 1
+    # > line 2
+    # >> line 3
+    # > line 4
+    # > line 5
+    #
+    # becomes
+    #
+    # > line 1
+    # > line 2
+    #
+    # >> line 3
+    #
+    # > line 4
+    # > line 5
+    lines = mdwn.split("\n")
+    result = []
+    for i in range(len(lines) - 1):
+        result.append(lines[i])
+        if lines[i].startswith(">") and lines[i + 1].startswith(">"):
+            indent_cur = re.match(r'^(?:>\s?)+', lines[i]).group(0)
+            indent_next = re.match(r'^(?:>\s?)+', lines[i+1]).group(0)
+            if indent_cur != indent_next:
+                result.append(indent_next)
+    result.append(lines[-1])
+    ret = '\n'.join(result)
 
     return ret
 
@@ -197,7 +240,6 @@ def _reformat_quotes(html):
     return ret
 
 
-
 def _convert_with_pandoc(mdwn, inputfmt='markdown', outputfmt='html5',
                          ext_enabled=None, ext_disabled=None,
                          standalone=True, title="HTML E-Mail"):
@@ -233,7 +275,8 @@ def _convert_with_pandoc(mdwn, inputfmt='markdown', outputfmt='html5',
         ext_disabled = [ 'tex_math_single_backslash',
                          'tex_math_dollars',
                          'smart',
-                         'raw_html'
+                         'raw_html',
+                         'blank_before_blockquote'
                        ]
 
     enabled = '+'.join(ext_enabled)
@@ -299,10 +342,11 @@ def main():
     Convert text on stdin to HTML, and print it to stdout, like mutt would
     expect.
     '''
-    html = convert_markdown_to_html(sys.stdin.read())
-    if html:
-        # mutt expects the content type in the first line, so:
-        print(f'text/html\n\n{html}')
+    with open(sys.argv[1]) if len(sys.argv) > 1 else sys.stdin as f:
+        html = convert_markdown_to_html(f.read())
+        if html:
+            # mutt expects the content type in the first line, so:
+            print(f'text/html\n\n{html}')
 
 
 if __name__ == '__main__':
