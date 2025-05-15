@@ -418,6 +418,7 @@ int mutt_change_flag (HEADER *h, int bf)
       break;
 
     default:
+      mutt_flush_macro_on_error ();
       BEEP ();
       return (-1);
   }

@@ -479,6 +479,7 @@ int mutt_yesorno_with_help (const char *msg, int def, const char *var)
     }
     else
     {
+      mutt_flush_macro_on_error ();
       BEEP();
     }
   }
@@ -1213,6 +1214,16 @@ void mutt_flush_unget_to_endcond (void)
   }
 }
 
+/* If we are executing a macro, abort because something went wrong */
+void mutt_flush_macro_on_error (void)
+{
+#ifdef DEBUG
+  if (MacroBufferCount > 0)
+    dprintf(1, "Abort macro execution\n");
+#endif
+  MacroBufferCount = 0;
+}
+
 void mutt_flushinp (void)
 {
   UngetCount = 0;
@@ -1310,6 +1321,7 @@ int mutt_multi_choice (char *prompt, char *letters)
 	  break;
       }
     }
+    mutt_flush_macro_on_error ();
     BEEP ();
   }
   if (MuttMessageWindow->rows != 1)

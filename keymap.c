@@ -507,26 +507,9 @@ int km_dokey (int menu)
 	  return tmp.op;
       }
 
-      /* Sigh. Valid function but not in this context.
-       * Find the literal string and push it back */
-      for (i = 0; Menus[i].name; i++)
-      {
-	bindings = km_get_table (Menus[i].value);
-	if (bindings)
-	{
-	  func = get_func (bindings, tmp.op);
-	  if (func)
-	  {
-	    mutt_unget_event ('>', 0);
-	    mutt_unget_string (func);
-	    mutt_unget_event ('<', 0);
-	    break;
-	  }
-	}
-      }
-      /* continue to chew */
-      if (func)
-	continue;
+      /* Valid function but not in this context. Abort! */
+      mutt_flush_macro_on_error ();
+      return -2;
     }
 
     /* Nope. Business as usual */
