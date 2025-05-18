@@ -192,6 +192,11 @@ else
    AC_MSG_RESULT([no])
 fi
 
+AC_MSG_CHECKING([whether to try to install desktop file])
+AC_ARG_ENABLE(desktop, [AS_HELP_STRING([--enable-desktop],[try to install desktop file (default=yes)])], [desktop=$enableval], [desktop=yes])
+AC_MSG_RESULT([$desktop])
+AM_CONDITIONAL(DESKTOP,[test x${desktop} = xyes])
+
 AC_ARG_ENABLE(pgp, AS_HELP_STRING([--disable-pgp],[Disable PGP support]),
 [       if test x$enableval = xno ; then
                 have_pgp=no
