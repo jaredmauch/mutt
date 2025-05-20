@@ -35,8 +35,8 @@ struct hash_elem
 typedef struct
 {
   int nelem;
-  unsigned int strdup_keys : 1;      /* if set, the key->strkey is strdup'ed */
-  unsigned int allow_dups : 1;       /* if set, duplicate keys are allowed */
+  int length;
+  unsigned int flags;
   struct hash_elem **table;
   unsigned int (*gen_hash)(union hash_key, unsigned int);
   int (*cmp_key)(union hash_key, union hash_key);
@@ -65,7 +65,11 @@ void hash_delete (HASH * table, const char *key, const void *data,
 void int_hash_delete (HASH * table, unsigned int key, const void *data,
                       void (*destroy) (void *));
 
+int hash_update (HASH * table, const char *key, void *data);
+
 void hash_destroy (HASH ** hash, void (*destroy) (void *));
+
+int hash_length (HASH *hash);
 
 struct hash_walk_state {
   int index;
