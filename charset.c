@@ -420,7 +420,18 @@ size_t mutt_iconv (iconv_t cd, ICONV_CONST char **inbuf, size_t *inbytesleft,
   {
     ret1 = iconv (cd, &ib, &ibl, &ob, &obl);
     if (ret1 != (size_t)-1)
+    {
+      dprint (1, (debugfile, "iconv returned %zu\n", ret1));
       ret += ret1;
+    }
+    else
+    {
+      dprint (1, (debugfile, "iconv returned -1\n"));
+      if (errno == EILSEQ)
+	dprint (1, (debugfile, "errno is EILSEQ\n"));
+      else if (errno == EINVAL)
+	dprint (1, (debugfile, "errno is EINVAL\n"));
+    }
     if (ibl && obl && errno == EILSEQ)
     {
       if (inrepls)

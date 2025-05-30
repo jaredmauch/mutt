@@ -105,9 +105,13 @@ static void mutt_convert_to_state(iconv_t cd, char *bufi, size_t *l, STATE *s)
   for (;;)
   {
     ob = bufo, obl = sizeof (bufo);
+    dprint (1, (debugfile, "Calling mutt_iconv on *%s*\n", ib));
     mutt_iconv (cd, &ib, &ibl, &ob, &obl, 0, "?");
     if (ob == bufo)
+    {
+      dprint (1, (debugfile, "No change from mutt_iconv(), breaking\n"));
       break;
+    }
     state_prefix_put (bufo, ob - bufo, s);
   }
   memmove (bufi, ib, ibl);
@@ -204,6 +208,8 @@ static void qp_decode_line (char *dest, char *src, size_t *l,
 
   *d = '\0';
   *l = d - dest;
+
+  dprint (1, (debugfile, "qp_decode_line from *%s* to *%s\n", src, dest));
 }
 
 /*
