@@ -509,6 +509,11 @@ char *mutt_html_to_text(const char *html_content, size_t html_len)
     return NULL;
   }
   
+  // Collapse more than 2 blank lines in a row
+  char *collapsed = collapse_blank_lines(result);
+  FREE(&result);
+  result = collapsed;
+
   dprint(1, (debugfile, "mutt_html_to_text: Successfully extracted %zu characters of text\n", strlen(result)));
   return result;
 }
@@ -526,3 +531,26 @@ char *mutt_html_to_text(const char *html_content, size_t html_len)
 }
 
 #endif /* HAVE_LIBXML2 */ 
+
+// Collapse more than 2 consecutive blank lines in a string
+static char *collapse_blank_lines(const char *input) {
+  if (!input) return NULL;
+  size_t len = strlen(input);
+  char *out = safe_malloc(len + 1);
+  size_t i = 0, j = 0;
+  int newline_count = 0;
+  while (input[i]) {
+    if (input[i] == '\n') {
+      newline_count++;
+      if (newline_count <= 2) {
+        out[j++] = input[i];
+      }
+    } else {
+      newline_count = 0;
+      out[j++] = input[i];
+    }
+    i++;
+  }
+  out[j] = '\0';
+  return out;
+} 
