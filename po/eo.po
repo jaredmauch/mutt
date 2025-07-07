@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mutt 1.8.0\n"
 "Report-Msgid-Bugs-To: https://gitlab.com/muttmua/mutt/-/issues\n"
-"POT-Creation-Date: 2025-07-07 01:35-0400\n"
+"POT-Creation-Date: 2025-07-07 09:57-0400\n"
 "PO-Revision-Date: 2021-08-20 16:44+0100\n"
 "Last-Translator: Benno Schulenberg <benno@vertaalt.nl>\n"
 "Language-Team: Esperanto <translation-team-eo@lists.sourceforge.net>\n"
@@ -72,8 +72,8 @@ msgstr "Elekto"
 #. L10N: localized names of RFC 2369 list operations
 #: addrbook.c:41 autocrypt/autocrypt_acct_menu.c:62 background.c:175
 #: background.c:367 browser.c:49 compose.c:143 crypt-gpgme.c:4568
-#: curs_main.c:575 history.c:78 listmenu.c:61 mutt_ssl.c:1295
-#: mutt_ssl_gnutls.c:1192 pager.c:2144 pattern.c:2175 pgpkey.c:526
+#: curs_main.c:575 history.c:78 listmenu.c:61 mutt_ssl.c:1359
+#: mutt_ssl_gnutls.c:1071 pager.c:2144 pattern.c:2175 pgpkey.c:526
 #: postpone.c:45 query.c:54 recvattach.c:63 smime.c:466
 msgid "Help"
 msgstr "Helpo"
@@ -211,7 +211,7 @@ msgstr "---Parto: %s: %s"
 msgid "---Attachment: %s"
 msgstr "---Parto: %s"
 
-#: attach.c:642 attach.c:1012 attach.c:1069 handler.c:1373 pgpkey.c:578
+#: attach.c:642 attach.c:1012 attach.c:1069 handler.c:1379 pgpkey.c:578
 #: pgpkey.c:764
 msgid "Can't create filter"
 msgstr "Ne eblas krei filtrilon"
@@ -632,88 +632,88 @@ msgstr ""
 msgid "dazcun"
 msgstr "dagnls"
 
-#: browser.c:562 browser.c:1103 browser.c:1329
+#: browser.c:562 browser.c:1093 browser.c:1314
 #, c-format
 msgid "%s is not a directory."
 msgstr "%s ne estas dosierujo."
 
-#: browser.c:750
+#: browser.c:749
 #, c-format
 msgid "Mailboxes [%d]"
 msgstr "Poŝtfakoj [%d]"
 
-#: browser.c:757
+#: browser.c:756
 #, c-format
 msgid "Subscribed [%s], File mask: %s"
 msgstr "Abonita [%s], Dosieromasko: %s"
 
-#: browser.c:761
+#: browser.c:760
 #, c-format
 msgid "Directory [%s], File mask: %s"
 msgstr "Dosierujo [%s], Dosieromasko: %s"
 
-#: browser.c:778
+#: browser.c:777
 msgid "Can't attach a directory!"
 msgstr "Ne eblas aldoni dosierujon!"
 
-#: browser.c:979 browser.c:1399 browser.c:1469
+#: browser.c:970 browser.c:1382 browser.c:1451
 msgid "No files match the file mask"
 msgstr "Neniu dosiero kongruas kun la dosieromasko"
 
-#: browser.c:1170
+#: browser.c:1160
 msgid "Create is only supported for IMAP mailboxes"
 msgstr "Kreado funkcias nur ĉe IMAP-poŝtfakoj"
 
-#: browser.c:1194
+#: browser.c:1183
 msgid "Rename is only supported for IMAP mailboxes"
 msgstr "Renomado funkcias nur ĉe IMAP-poŝtfakoj"
 
-#: browser.c:1217
+#: browser.c:1205
 msgid "Delete is only supported for IMAP mailboxes"
 msgstr "Forviŝado funkcias nur ĉe IMAP-poŝtfakoj"
 
-#: browser.c:1227
+#: browser.c:1215
 msgid "Cannot delete root folder"
 msgstr "Ne eblas forviŝi radikan poŝtujon"
 
-#: browser.c:1230
+#: browser.c:1218
 #, c-format
 msgid "Really delete mailbox \"%s\"?"
 msgstr "Ĉu vere forviŝi la poŝtfakon \"%s\"?"
 
-#: browser.c:1246
+#: browser.c:1234
 msgid "Mailbox deleted."
 msgstr "Poŝtfako forviŝita."
 
-#: browser.c:1252
+#: browser.c:1239
 msgid "Mailbox deletion failed."
 msgstr "Forviŝo de poŝtfako malsukcesis."
 
-#: browser.c:1255
+#: browser.c:1242
 msgid "Mailbox not deleted."
 msgstr "Poŝtfako ne forviŝita."
 
-#: browser.c:1276
+#: browser.c:1263
 msgid "Chdir to: "
 msgstr "Iri al la dosierujo: "
 
-#: browser.c:1317 browser.c:1393
+#: browser.c:1303 browser.c:1376
 msgid "Error scanning directory."
 msgstr "Eraro dum legado de dosierujo."
 
-#: browser.c:1341
+#: browser.c:1326
 msgid "File Mask: "
 msgstr "Dosieromasko: "
 
-#: browser.c:1458
+#: browser.c:1440
 msgid "New file name: "
 msgstr "Nova dosieronomo: "
 
-#: browser.c:1494
+#: browser.c:1476
 msgid "Can't view a directory"
 msgstr "Ne eblas rigardi dosierujon"
 
-#: browser.c:1510
+#: browser.c:1492
 msgid "Error trying to view file"
 msgstr "Eraro dum vidigo de dosiero"
 
@@ -2059,7 +2059,7 @@ msgstr "gpgme_op_keylist_next() malsukcesis: %s"
 msgid "All matching keys are marked expired/revoked."
 msgstr "Ĉiuj kongruaj ŝlosiloj estas eksvalidiĝintaj/revokitaj."
 
-#: crypt-gpgme.c:4560 mutt_ssl.c:1293 mutt_ssl_gnutls.c:1190 pgpkey.c:519
+#: crypt-gpgme.c:4560 mutt_ssl.c:1357 mutt_ssl_gnutls.c:1069 pgpkey.c:519
 #: smime.c:461
 msgid "Exit  "
 msgstr "Eliri  "
@@ -2300,7 +2300,7 @@ msgstr "Erarohistorio estas nun montrata."
 msgid "Error History"
 msgstr "Erarohistorio"
 
-#: curs_lib.c:1010 mutt_socket.c:712 mutt_ssl.c:600
+#: curs_lib.c:1010 mutt_socket.c:696 mutt_ssl.c:664
 msgid "unknown error"
 msgstr "nekonata eraro"
 
@@ -2781,111 +2781,111 @@ msgstr "Ŝalti flagon"
 msgid "Clear flag"
 msgstr "Malŝalti flagon"
 
-#: handler.c:1145
+#: handler.c:1151
 msgid "[-- Error:  Could not display any parts of Multipart/Alternative! --]\n"
 msgstr "[-- Eraro: Neniu parto de Multipart/Alternative estis montrebla! --]\n"
 
-#: handler.c:1261
+#: handler.c:1267
 #, c-format
 msgid "[-- Attachment #%d"
 msgstr "[-- Parto #%d"
 
-#: handler.c:1273
+#: handler.c:1279
 #, c-format
 msgid "[-- Type: %s/%s, Encoding: %s, Size: %s --]\n"
 msgstr "[-- Speco: %s/%s, Kodado: %s, Grando: %s --]\n"
 
-#: handler.c:1289
+#: handler.c:1295
 msgid "One or more parts of this message could not be displayed"
 msgstr "Unu aŭ pluraj partoj de ĉi tiu mesaĝo ne montriĝeblas"
 
-#: handler.c:1344
+#: handler.c:1350
 #, c-format
 msgid "[-- Autoview using %s --]\n"
 msgstr "[-- Aŭtomata vidigo per %s --]\n"
 
-#: handler.c:1345
+#: handler.c:1351
 #, c-format
 msgid "Invoking autoview command: %s"
 msgstr "Alvokas aŭtomatan vidigon per: %s"
 
-#: handler.c:1377
+#: handler.c:1383
 #, c-format
 msgid "[-- Can't run %s. --]\n"
 msgstr "[-- Ne eblas ruli %s. --]\n"
 
-#: handler.c:1412
+#: handler.c:1418
 #, c-format
 msgid "[-- Autoview stderr of %s --]\n"
 msgstr "[-- Erareligo de %s --]\n"
 
-#: handler.c:1466
+#: handler.c:1472
 msgid "[-- Error: message/external-body has no access-type parameter --]\n"
 msgstr "[-- Eraro: parto message/external ne havas parametro access-type --]\n"
 
-#: handler.c:1487
+#: handler.c:1493
 #, c-format
 msgid "[-- This %s/%s attachment "
 msgstr "[-- Ĉi tiu %s/%s-parto "
 
-#: handler.c:1494
+#: handler.c:1500
 #, c-format
 msgid "(size %s bytes) "
 msgstr "(grando %s bitokoj) "
 
-#: handler.c:1496
+#: handler.c:1502
 msgid "has been deleted --]\n"
 msgstr "estas forviŝita --]\n"
 
-#: handler.c:1501
+#: handler.c:1507
 #, c-format
 msgid "[-- on %s --]\n"
 msgstr "[-- je %s --]\n"
 
-#: handler.c:1506
+#: handler.c:1512
 #, c-format
 msgid "[-- name: %s --]\n"
 msgstr "[-- nomo: %s --]\n"
 
-#: handler.c:1519 handler.c:1535
+#: handler.c:1525 handler.c:1541
 #, c-format
 msgid "[-- This %s/%s attachment is not included, --]\n"
 msgstr "[-- Ĉi tiu %s/%s-parto ne estas inkluzivita, --]\n"
 
-#: handler.c:1521
+#: handler.c:1527
 msgid ""
 "[-- and the indicated external source has --]\n"
 "[-- expired. --]\n"
 msgstr "[-- kaj la indikita ekstera fonto eksvalidiĝis. --]\n"
 
-#: handler.c:1539
+#: handler.c:1545
 #, c-format
 msgid "[-- and the indicated access-type %s is unsupported --]\n"
 msgstr "[-- kaj Mutt ne kapablas je la indikita alirmaniero %s. --]\n"
 
-#: handler.c:1646
+#: handler.c:1652
 msgid "Unable to open temporary file!"
 msgstr "Ne eblas malfermi dumtempan dosieron!"
 
-#: handler.c:1838
+#: handler.c:1844
 msgid "Error: multipart/signed has no protocol."
 msgstr "Eraro: multipart/signed ne havas parametron 'protocol'!"
 
-#: handler.c:1894
+#: handler.c:1900
 msgid "[-- This is an attachment "
 msgstr "[-- Ĉi tiu estas parto "
 
-#: handler.c:1896
+#: handler.c:1902
 #, c-format
 msgid "[-- %s/%s is unsupported "
 msgstr "[-- %s/%s ne estas konata "
 
-#: handler.c:1903
+#: handler.c:1909
 #, c-format
 msgid "(use '%s' to view this part)"
 msgstr "(uzu '%s' por vidigi ĉi tiun parton)"
 
-#: handler.c:1905
+#: handler.c:1911
 msgid "(need 'view-attachments' bound to key!)"
 msgstr "(bezonas klavodifinon por 'view-attachments'!)"
 
@@ -3032,7 +3032,7 @@ msgstr "%s-rajtiĝo malsukcesis."
 msgid "SASL authentication failed."
 msgstr "SASL-rajtiĝo malsukcesis."
 
-#: imap/browse.c:60 imap/imap.c:835
+#: imap/browse.c:60 imap/imap.c:786
 #, c-format
 msgid "%s is an invalid IMAP path"
 msgstr "%s ne estas valida IMAP-vojo"
@@ -3075,7 +3075,7 @@ msgstr "Renomado malsukcesis: %s"
 msgid "Mailbox renamed."
 msgstr "Poŝtfako renomita."
 
-#: imap/command.c:268 imap/command.c:360
+#: imap/command.c:269 imap/command.c:350
 #, c-format
 msgid "Connection to %s timed out"
 msgstr "Konekto al %s fermita pro tempopaso"
@@ -3086,11 +3086,11 @@ msgstr "Konekto al %s fermita pro tempopaso"
 #. will try to reconnect and merge current changes back during
 #. mx_check_mailbox()
 #.
-#: imap/command.c:510
+#: imap/command.c:492
 msgid "A fatal error occurred.  Will attempt reconnection."
 msgstr "Fatala eraro okazis. Klopodos rekonekti."
 
-#: imap/command.c:531
+#: imap/command.c:504
 #, c-format
 msgid "Mailbox %s@%s closed"
 msgstr "Poŝtfako %s@%s fermita"
@@ -3113,27 +3113,11 @@ msgstr "Ĉi tiu IMAP-servilo estas antikva.  Mutt ne funkcias kun ĝi."
 msgid "Secure connection with TLS?"
 msgstr "Ĉu sekura konekto per TLS?"
 
-#: imap/imap.c:506
-#, fuzzy
-#| msgid "Preconnect command failed."
-msgid "STARTTLS command failed"
-msgstr "Antaŭkonekta komando malsukcesis."
-
-#: imap/imap.c:521 pop_lib.c:316 smtp.c:531
+#: imap/imap.c:509 pop_lib.c:316 smtp.c:531
 msgid "Could not negotiate TLS connection"
 msgstr "Ne eblis negoci TLS-konekton"
 
-#: imap/imap.c:530
-msgid "Failed to recheck capabilities after STARTTLS"
-msgstr ""
-
-#: imap/imap.c:541
-#, fuzzy
-#| msgid "SMTP server does not support authentication"
-msgid "Server does not support STARTTLS but encryption is required"
-msgstr "SMTP-servilo ne akceptas rajtiĝon"
-
-#: imap/imap.c:552 imap/imap.c:570 pop_lib.c:337
+#: imap/imap.c:525 imap/imap.c:543 pop_lib.c:337
 msgid "Encrypted connection unavailable"
 msgstr "Ĉifrata konekto ne disponeblas"
 
@@ -3141,110 +3125,99 @@ msgstr "Ĉifrata konekto ne disponeblas"
 #. Message displayed when IMAP connection is lost and Mutt
 #. tries to reconnect.
 #.
-#: imap/imap.c:620 imap/imap.c:650
+#: imap/imap.c:593
 msgid "Trying to reconnect..."
 msgstr "Klopodas rekonekti..."
-
-#. L10N:
-#. Message displayed when IMAP connection is lost and Mutt
-#. tries to reconnect but fails.  Mutt will try imap_reconnect_tries times
-#. and sleep imap_reconnect_sleep seconds between each retry.
-#.
-#: imap/imap.c:639
-#, fuzzy, c-format
-#| msgid "Reconnect failed.  Mailbox closed."
-msgid "Reconnect failed. Sleeping %d seconds."
-msgstr "Rekonekto malsukcesis. Poŝtfako fermita."
 
 #. L10N:
 #. Message when Mutt tries to reconnect to an IMAP mailbox but is
 #. unable to.
 #.
-#: imap/imap.c:747
+#: imap/imap.c:698
 msgid "Reconnect failed.  Mailbox closed."
 msgstr "Rekonekto malsukcesis. Poŝtfako fermita."
 
 #. L10N:
 #. Message when Mutt reconnects to an IMAP mailbox after a fatal error.
 #.
-#: imap/imap.c:758
+#: imap/imap.c:709
 msgid "Reconnect succeeded."
 msgstr "Rekonekto sukcesis."
 
-#: imap/imap.c:868
+#: imap/imap.c:819
 #, c-format
 msgid "Selecting %s..."
 msgstr "Elektas %s..."
 
-#: imap/imap.c:1050
+#: imap/imap.c:1001
 msgid "Error opening mailbox"
 msgstr "Eraro dum malfermado de poŝtfako"
 
-#: imap/imap.c:1107 imap/imap.c:2651 imap/message.c:1586 muttlib.c:2044
+#: imap/imap.c:1058 imap/imap.c:2601 imap/message.c:1584 muttlib.c:2044
 #, c-format
 msgid "Create %s?"
 msgstr "Ĉu krei %s?"
 
-#: imap/imap.c:1538
+#: imap/imap.c:1489
 msgid "Expunge failed"
 msgstr "Forviŝo malsukcesis"
 
-#: imap/imap.c:1551
+#: imap/imap.c:1502
 #, c-format
 msgid "Marking %d messages deleted..."
 msgstr "Markas %d mesaĝojn kiel forviŝitajn..."
 
-#: imap/imap.c:1608
+#: imap/imap.c:1559
 #, c-format
 msgid "Saving changed messages... [%d/%d]"
 msgstr "Skribas ŝanĝitajn mesaĝojn... [%d/%d]"
 
-#: imap/imap.c:1689
+#: imap/imap.c:1640
 msgid "Error saving flags. Close anyway?"
 msgstr "Eraro dum skribado de flagoj.  Ĉu tamen fermi?"
 
-#: imap/imap.c:1697
+#: imap/imap.c:1648
 msgid "Error saving flags"
 msgstr "Eraro dum skribado de flagoj"
 
-#: imap/imap.c:1721
+#: imap/imap.c:1672
 msgid "Expunging messages from server..."
 msgstr "Forviŝas mesaĝojn de la servilo..."
 
-#: imap/imap.c:1727
+#: imap/imap.c:1678
 msgid "imap_sync_mailbox: EXPUNGE failed"
 msgstr "imap_sync_mailbox: EXPUNGE malsukcesis"
 
-#: imap/imap.c:2270
+#: imap/imap.c:2220
 #, c-format
 msgid "Header search without header name: %s"
 msgstr "Ĉaposerĉo sen ĉaponomo: %s"
 
-#: imap/imap.c:2345
+#: imap/imap.c:2295
 msgid "Bad mailbox name"
 msgstr "Malbona nomo por poŝtfako"
 
-#: imap/imap.c:2364
+#: imap/imap.c:2314
 #, c-format
 msgid "Subscribing to %s..."
 msgstr "Abonas %s..."
 
-#: imap/imap.c:2366
+#: imap/imap.c:2316
 #, c-format
 msgid "Unsubscribing from %s..."
 msgstr "Malabonas %s..."
 
-#: imap/imap.c:2376
+#: imap/imap.c:2326
 #, c-format
 msgid "Subscribed to %s"
 msgstr "Abonas %s"
 
-#: imap/imap.c:2378
+#: imap/imap.c:2328
 #, c-format
 msgid "Unsubscribed from %s"
 msgstr "Malabonis %s"
 
-#: imap/imap.c:2636 imap/message.c:1550
+#: imap/imap.c:2586 imap/message.c:1548
 #, c-format
 msgid "Copying %d messages to %s..."
 msgstr "Kopias %d mesaĝojn al %s..."
@@ -3255,19 +3228,19 @@ msgstr "Kopias %d mesaĝojn al %s..."
 msgid "Abort download and close mailbox?"
 msgstr "Ĉu interrompi elŝuton kaj fermi poŝtfakon?"
 
-#: imap/message.c:115 mx.c:1470
+#: imap/message.c:113 mx.c:1470
 msgid "Integer overflow -- can't allocate memory."
 msgstr "Entjera troo -- ne eblas asigni memoron."
 
 #. L10N:
 #. Comparing the cached data with the IMAP server's data
-#: imap/message.c:462
+#: imap/message.c:460
 msgid "Evaluating cache..."
 msgstr "Pritaksas staplon..."
 
 #. L10N:
 #. Fetching IMAP flag changes, using the CONDSTORE extension
-#: imap/message.c:676
+#: imap/message.c:674
 msgid "Fetching flag updates..."
 msgstr "Prenas flago-aktualigojn..."
 
@@ -3276,36 +3249,36 @@ msgstr "Prenas flago-aktualigojn..."
 #. a quick sanity check.  If that fails, Mutt reopens the mailbox
 #. using a normal download.
 #.
-#: imap/message.c:823
+#: imap/message.c:821
 msgid "QRESYNC failed.  Reopening mailbox."
 msgstr "QRESYNC malsukcesis. Remalfermas poŝtfakon."
 
-#: imap/message.c:878
+#: imap/message.c:876
 msgid "Unable to fetch headers from this IMAP server version."
 msgstr "Ne eblas preni ĉapojn de ĉi tiu versio de IMAP-servilo."
 
-#: imap/message.c:891
+#: imap/message.c:889
 #, c-format
 msgid "Could not create temporary file %s"
 msgstr "Ne eblis krei dumtempan dosieron %s"
 
-#: imap/message.c:899 pop.c:310
+#: imap/message.c:897 pop.c:310
 msgid "Fetching message headers..."
 msgstr "Prenas mesaĝoĉapojn..."
 
-#: imap/message.c:1115 imap/message.c:1194 pop.c:623
+#: imap/message.c:1113 imap/message.c:1192 pop.c:623
 msgid "Fetching message..."
 msgstr "Prenas mesaĝon..."
 
-#: imap/message.c:1179 pop.c:618
+#: imap/message.c:1177 pop.c:618
 msgid "The message index is incorrect. Try reopening the mailbox."
 msgstr "La mesaĝindekso estas malĝusta.  Provu remalfermi la poŝtfakon."
 
-#: imap/message.c:1363
+#: imap/message.c:1361
 msgid "Uploading message..."
 msgstr "Alŝutas mesaĝon..."
 
-#: imap/message.c:1554
+#: imap/message.c:1552
 #, c-format
 msgid "Copying message %d to %s..."
 msgstr "Kopias mesaĝon %d al %s..."
@@ -3575,14 +3548,14 @@ msgstr "----- Fino de plusendita mesaĝo -----"
 #. can interfere with testing, so be sure to test with $header_cache
 #. unset.
 #.
-#: init.h:3303
+#: init.h:3290
 msgid "^(re)(\\[[0-9]+\\])*:[ \t]*"
 msgstr ""
 
 #. L10N:
 #. $status_format default value
 #.
-#: init.h:4522
+#: init.h:4490
 msgid ""
 "-%r-Mutt: %f [Msgs:%?M?%M/?%m%?n? New:%n?%?o? Old:%o?%?d? Del:%d?%?F? Flag:"
 "%F?%?t? Tag:%t?%?p? Post:%p?%?b? Inc:%b?%?B? Back:%B?%?l? %l?]---(%s/%?T?%T/?"
@@ -3592,14 +3565,14 @@ msgstr ""
 #. L10N:
 #. $ts_icon_format default value
 #.
-#: init.h:4726
+#: init.h:4694
 msgid "M%?n?AIL&ail?"
 msgstr ""
 
 #. L10N:
 #. $ts_status_format default value
 #.
-#: init.h:4743
+#: init.h:4711
 msgid "Mutt with %?m?%m messages&no messages?%?n? [%n NEW]?"
 msgstr "Mutt kun %?m?%m mesaĝoj&neniu mesaĝo?%?n? [%n NOVA]?"
 
@@ -4121,83 +4094,87 @@ msgstr "SSL ne disponeblas."
 msgid "Preconnect command failed."
 msgstr "Antaŭkonekta komando malsukcesis."
 
-#: mutt_socket.c:497 mutt_socket.c:520
+#: mutt_socket.c:481 mutt_socket.c:504
 #, c-format
 msgid "Error talking to %s (%s)"
 msgstr "Eraro dum komunikado kun %s (%s)"
 
-#: mutt_socket.c:604 mutt_socket.c:663
+#: mutt_socket.c:588 mutt_socket.c:647
 #, c-format
 msgid "Bad IDN \"%s\"."
 msgstr "Malbona IDN \"%s\"."
 
-#: mutt_socket.c:612 mutt_socket.c:671
+#: mutt_socket.c:596 mutt_socket.c:655
 #, c-format
 msgid "Looking up %s..."
 msgstr "Serĉas pri %s..."
 
-#: mutt_socket.c:622 mutt_socket.c:681
+#: mutt_socket.c:606 mutt_socket.c:665
 #, c-format
 msgid "Could not find the host \"%s\""
 msgstr "Ne eblis trovi la servilon \"%s\""
 
-#: mutt_socket.c:628 mutt_socket.c:687
+#: mutt_socket.c:612 mutt_socket.c:671
 #, c-format
 msgid "Connecting to %s..."
 msgstr "Konektiĝas al %s..."
 
-#: mutt_socket.c:711
+#: mutt_socket.c:695
 #, c-format
 msgid "Could not connect to %s (%s)."
 msgstr "Ne eblis konektiĝi al %s (%s)."
-
-#: mutt_ssl.c:228
-msgid "Unable to create SSL context"
-msgstr "Malsukcesis krei SSL-kuntekston"
-
-#: mutt_ssl.c:278
-msgid "Warning: error enabling ssl_verify_partial_chains"
-msgstr "Averto: eraro dum funkciigo de ssl_verify_partial_chains"
 
 #. L10N:
 #. The server is not supposed to send data immediately after
 #. confirming STARTTLS.  This warns the user that something
 #. weird is going on.
 #.
-#: mutt_ssl.c:333 mutt_ssl_gnutls.c:342
+#: mutt_ssl.c:222 mutt_ssl_gnutls.c:232
 msgid "Warning: clearing unexpected server data before TLS negotiation"
 msgstr "Averto: forigas neatenditajn datenojn de servilo antaŭ TLS-negoco"
 
-#: mutt_ssl.c:398
+#: mutt_ssl.c:300 mutt_ssl.c:584
+msgid "Warning: error enabling ssl_verify_partial_chains"
+msgstr "Averto: eraro dum funkciigo de ssl_verify_partial_chains"
+
+#: mutt_ssl.c:386
 msgid "Failed to find enough entropy on your system"
 msgstr "Ne trovis sufiĉe da entropio en via sistemo"
 
-#: mutt_ssl.c:427
+#: mutt_ssl.c:415
 #, c-format
 msgid "Filling entropy pool: %s...\n"
 msgstr "Plenigas entropiujon: %s...\n"
 
-#: mutt_ssl.c:435
+#: mutt_ssl.c:423
 #, c-format
 msgid "%s has insecure permissions!"
 msgstr "%s havas malsekurajn permesojn!"
 
-#: mutt_ssl.c:451
+#: mutt_ssl.c:439
 msgid "SSL disabled due to the lack of entropy"
 msgstr "SSL malŝaltita pro manko de entropio"
+
+#. L10N: an SSL context is a data structure returned by the OpenSSL
+#. *       function SSL_CTX_new().  In this case it returned NULL: an
+#. *       error condition.
+#.
+#: mutt_ssl.c:519
+msgid "Unable to create SSL context"
+msgstr "Malsukcesis krei SSL-kuntekston"
 
 #. L10N: This is a warning when trying to set the host name for
 #. * TLS Server Name Indication (SNI).  This allows the server to present
 #. * the correct certificate if it supports multiple hosts.
-#: mutt_ssl.c:583 mutt_ssl_gnutls.c:585
+#: mutt_ssl.c:647 mutt_ssl_gnutls.c:473
 msgid "Warning: unable to set TLS SNI host name"
 msgstr "Averto: ne povas difini TLS-SNI-retnomon"
 
-#: mutt_ssl.c:594
+#: mutt_ssl.c:658
 msgid "I/O error"
 msgstr "eraro ĉe legado aŭ skribado"
 
-#: mutt_ssl.c:603
+#: mutt_ssl.c:667
 #, c-format
 msgid "SSL failed: %s"
 msgstr "SSL malsukcesis: %s"
@@ -4206,89 +4183,89 @@ msgstr "SSL malsukcesis: %s"
 #. %1$s is version (e.g. "TLSv1.2")
 #. %2$s is cipher_version (e.g. "TLSv1/SSLv3")
 #. %3$s is cipher_name (e.g. "ECDHE-RSA-AES128-GCM-SHA256")
-#: mutt_ssl.c:613
+#: mutt_ssl.c:677
 #, c-format
 msgid "%s connection using %s (%s)"
 msgstr "%s-konekto per %s (%s)"
 
-#: mutt_ssl.c:738
+#: mutt_ssl.c:802
 msgid "Unknown"
 msgstr "Nekonata"
 
-#: mutt_ssl.c:751 mutt_ssl_gnutls.c:783
+#: mutt_ssl.c:815 mutt_ssl_gnutls.c:661
 #, c-format
 msgid "[unable to calculate]"
 msgstr "[ne eblas kalkuli]"
 
-#: mutt_ssl.c:769 mutt_ssl_gnutls.c:806
+#: mutt_ssl.c:833 mutt_ssl_gnutls.c:684
 msgid "[invalid date]"
 msgstr "[nevalida dato]"
 
-#: mutt_ssl.c:838
+#: mutt_ssl.c:902
 msgid "Server certificate is not yet valid"
 msgstr "Atestilo de servilo ankoraŭ ne validas"
 
-#: mutt_ssl.c:848
+#: mutt_ssl.c:912
 msgid "Server certificate has expired"
 msgstr "Atestilo de servilo estas eksvalidiĝinta"
 
-#: mutt_ssl.c:997
+#: mutt_ssl.c:1061
 msgid "cannot get certificate subject"
 msgstr "ne eblas akiri atestilan temon"
 
-#: mutt_ssl.c:1007 mutt_ssl.c:1016
+#: mutt_ssl.c:1071 mutt_ssl.c:1080
 msgid "cannot get certificate common name"
 msgstr "ne eblas akiri atestilan normalan nomon"
 
-#: mutt_ssl.c:1031
+#: mutt_ssl.c:1095
 #, c-format
 msgid "certificate owner does not match hostname %s"
 msgstr "posedanto de atestilo ne kongruas kun komputilretnomo %s"
 
-#: mutt_ssl.c:1138
+#: mutt_ssl.c:1202
 #, c-format
 msgid "Certificate host check failed: %s"
 msgstr "Malsukcesis kontrolo de gastiganta atestilo: %s"
 
-#: mutt_ssl.c:1199 mutt_ssl_gnutls.c:1004
+#: mutt_ssl.c:1263 mutt_ssl_gnutls.c:883
 #, fuzzy
 #| msgid "Warning: Couldn't save certificate"
 msgid "Untrusted server certificate"
 msgstr "Averto: Ne eblis skribi atestilon"
 
-#: mutt_ssl.c:1208 mutt_ssl_gnutls.c:1059
+#: mutt_ssl.c:1272 mutt_ssl_gnutls.c:938
 msgid "This certificate belongs to:"
 msgstr "Ĉi tiu atestilo apartenas al:"
 
-#: mutt_ssl.c:1217 mutt_ssl_gnutls.c:1101
+#: mutt_ssl.c:1281 mutt_ssl_gnutls.c:980
 msgid "This certificate was issued by:"
 msgstr "Ĉi tiu atestilo estis eldonita de:"
 
-#: mutt_ssl.c:1226 mutt_ssl_gnutls.c:1114
+#: mutt_ssl.c:1290 mutt_ssl_gnutls.c:993
 msgid "This certificate is valid"
 msgstr "Ĉi tiu atestilo estas valida"
 
-#: mutt_ssl.c:1227 mutt_ssl_gnutls.c:1117
+#: mutt_ssl.c:1291 mutt_ssl_gnutls.c:996
 #, c-format
 msgid "   from %s"
 msgstr "     de %s"
 
-#: mutt_ssl.c:1230 mutt_ssl_gnutls.c:1122
+#: mutt_ssl.c:1294 mutt_ssl_gnutls.c:1001
 #, c-format
 msgid "     to %s"
 msgstr "     al %s"
 
-#: mutt_ssl.c:1237 mutt_ssl_gnutls.c:1129
+#: mutt_ssl.c:1301 mutt_ssl_gnutls.c:1008
 #, c-format
 msgid "SHA1 Fingerprint: %s"
 msgstr "SHA1-fingrospuro: %s"
 
-#: mutt_ssl.c:1243 mutt_ssl.c:1246 mutt_ssl_gnutls.c:1135
-#: mutt_ssl_gnutls.c:1138
+#: mutt_ssl.c:1307 mutt_ssl.c:1310 mutt_ssl_gnutls.c:1014
+#: mutt_ssl_gnutls.c:1017
 msgid "SHA256 Fingerprint: "
 msgstr "SHA256-fingrospuro: "
 
-#: mutt_ssl.c:1250 mutt_ssl_gnutls.c:1159
+#: mutt_ssl.c:1314 mutt_ssl_gnutls.c:1038
 #, c-format
 msgid "SSL Certificate check (certificate %d of %d in chain)"
 msgstr "Kontrolo de SSL-atestilo (%d de %d en ĉeno)"
@@ -4299,31 +4276,31 @@ msgstr "Kontrolo de SSL-atestilo (%d de %d en ĉeno)"
 #. * These prompts are the interactive certificate confirmation prompts for
 #. * an OpenSSL connection.
 #.
-#: mutt_ssl.c:1276
+#: mutt_ssl.c:1340
 msgid "roas"
 msgstr "muap"
 
-#: mutt_ssl.c:1280
+#: mutt_ssl.c:1344
 msgid "(r)eject, accept (o)nce, (a)ccept always, (s)kip"
 msgstr "(m)alakcepti, akcepti (u)nufoje, (a)kcepti ĉiam, (p)rokrasti"
 
-#: mutt_ssl.c:1282 mutt_ssl_gnutls.c:1168
+#: mutt_ssl.c:1346 mutt_ssl_gnutls.c:1047
 msgid "(r)eject, accept (o)nce, (a)ccept always"
 msgstr "(m)alakcepti, akcepti (u)nufoje, (a)kcepti ĉiam"
 
-#: mutt_ssl.c:1287
+#: mutt_ssl.c:1351
 msgid "(r)eject, accept (o)nce, (s)kip"
 msgstr "(m)alakcepti, akcepti (u)nufoje, (p)rokrasti"
 
-#: mutt_ssl.c:1289 mutt_ssl_gnutls.c:1179
+#: mutt_ssl.c:1353 mutt_ssl_gnutls.c:1058
 msgid "(r)eject, accept (o)nce"
 msgstr "(m)alakcepti, akcepti (u)nufoje"
 
-#: mutt_ssl.c:1327 mutt_ssl_gnutls.c:1242
+#: mutt_ssl.c:1391 mutt_ssl_gnutls.c:1121
 msgid "Warning: Couldn't save certificate"
 msgstr "Averto: Ne eblis skribi atestilon"
 
-#: mutt_ssl.c:1332 mutt_ssl_gnutls.c:1247
+#: mutt_ssl.c:1396 mutt_ssl_gnutls.c:1126
 msgid "Certificate saved"
 msgstr "Atestilo skribita"
 
@@ -4335,70 +4312,57 @@ msgstr "Atestilo skribita"
 #. When using a $ssl_client_cert, GNUTLS may prompt for the password
 #. to decrypt the cert.  %s is the hostname.
 #.
-#: mutt_ssl.c:1393 mutt_ssl_gnutls.c:1406
+#: mutt_ssl.c:1457 mutt_ssl_gnutls.c:1285
 #, c-format
 msgid "Password for %s client cert: "
 msgstr "Pasvorto por klientatestilo de %s: "
 
-#: mutt_ssl_gnutls.c:145 mutt_ssl_gnutls.c:216
+#: mutt_ssl_gnutls.c:143 mutt_ssl_gnutls.c:171
 msgid "Error: no TLS socket open"
 msgstr "Eraro: neniu TLS-konekto malfermita"
 
-#: mutt_ssl_gnutls.c:169
-msgid "TLS rehandshake failed"
-msgstr ""
-
-#: mutt_ssl_gnutls.c:242
-msgid "TLS rehandshake failed during write"
-msgstr ""
-
-#: mutt_ssl_gnutls.c:463 mutt_ssl_gnutls.c:507
+#: mutt_ssl_gnutls.c:353 mutt_ssl_gnutls.c:397
 msgid "All available protocols for TLS/SSL connection disabled"
 msgstr "Ĉiuj disponeblaj protokoloj por TLS/SSL-konekto malŝaltitaj"
 
-#: mutt_ssl_gnutls.c:513
+#: mutt_ssl_gnutls.c:403
 msgid "Explicit ciphersuite selection via $ssl_ciphers not supported"
 msgstr "Rekta elekto de ĉifra algoritmo per $ssl_ciphers ne subtenatas"
 
-#: mutt_ssl_gnutls.c:610
-#, c-format
-msgid "TLS handshake timeout after %d seconds"
-msgstr ""
-
-#: mutt_ssl_gnutls.c:647
+#: mutt_ssl_gnutls.c:525
 #, c-format
 msgid "SSL/TLS connection using %s (%s/%s/%s)"
 msgstr "SSL/TLS-konekto per %s (%s/%s/%s)"
 
-#: mutt_ssl_gnutls.c:877 mutt_ssl_gnutls.c:1011
+#: mutt_ssl_gnutls.c:755 mutt_ssl_gnutls.c:890
 msgid "Error initialising gnutls certificate data"
 msgstr "Eraro dum starigo de gnutls-atestilo-datenoj"
 
-#: mutt_ssl_gnutls.c:884 mutt_ssl_gnutls.c:1018
+#: mutt_ssl_gnutls.c:762 mutt_ssl_gnutls.c:897
 msgid "Error processing certificate data"
 msgstr "Eraro dum traktado de atestilodatenoj"
 
-#: mutt_ssl_gnutls.c:1145
+#: mutt_ssl_gnutls.c:1024
 msgid "WARNING: Server certificate is not yet valid"
 msgstr "AVERTO: Atestilo de servilo ankoraŭ ne validas"
 
-#: mutt_ssl_gnutls.c:1147
+#: mutt_ssl_gnutls.c:1026
 msgid "WARNING: Server certificate has expired"
 msgstr "AVERTO: Atestilo de servilo estas eksvalidiĝinta"
 
-#: mutt_ssl_gnutls.c:1149
+#: mutt_ssl_gnutls.c:1028
 msgid "WARNING: Server certificate has been revoked"
 msgstr "AVERTO: Atestilo de servilo estas revokita"
 
-#: mutt_ssl_gnutls.c:1151
+#: mutt_ssl_gnutls.c:1030
 msgid "WARNING: Server hostname does not match certificate"
 msgstr "AVERTO: Nomo de serviloj ne kongruas kun atestilo"
 
-#: mutt_ssl_gnutls.c:1153
+#: mutt_ssl_gnutls.c:1032
 msgid "WARNING: Signer of server certificate is not a CA"
 msgstr "AVERTO: Subskribinto de servilo-atestilo ne estas CA"
 
-#: mutt_ssl_gnutls.c:1156
+#: mutt_ssl_gnutls.c:1035
 msgid "Warning: Server certificate was signed using an insecure algorithm"
 msgstr "Averto: servila atestilo estas subskribita kun malsekura algoritmo"
 
@@ -4408,7 +4372,7 @@ msgstr "Averto: servila atestilo estas subskribita kun malsekura algoritmo"
 #. * This is an interactive certificate confirmation prompt for
 #. * a GNUTLS connection.
 #.
-#: mutt_ssl_gnutls.c:1175
+#: mutt_ssl_gnutls.c:1054
 msgid "roa"
 msgstr "mua"
 
@@ -4418,15 +4382,15 @@ msgstr "mua"
 #. * These is an interactive certificate confirmation prompt for
 #. * a GNUTLS connection.
 #.
-#: mutt_ssl_gnutls.c:1186
+#: mutt_ssl_gnutls.c:1065
 msgid "ro"
 msgstr "mu"
 
-#: mutt_ssl_gnutls.c:1303 mutt_ssl_gnutls.c:1341
+#: mutt_ssl_gnutls.c:1182 mutt_ssl_gnutls.c:1220
 msgid "Unable to get certificate from peer"
 msgstr "Ne eblas akiri SSL-atestilon"
 
-#: mutt_ssl_gnutls.c:1305
+#: mutt_ssl_gnutls.c:1184
 #, c-format
 msgid "Certificate verification error (%s)"
 msgstr "Eraro dum kontrolo de atestilo (%s)"
@@ -8142,6 +8106,21 @@ msgstr "kaŝi/malkaŝi la flankan strion"
 #: OPS.SMIME:18
 msgid "show S/MIME options"
 msgstr "montri S/MIME-funkciojn"
+
+#, fuzzy
+#~| msgid "Preconnect command failed."
+#~ msgid "STARTTLS command failed"
+#~ msgstr "Antaŭkonekta komando malsukcesis."
+
+#, fuzzy
+#~| msgid "SMTP server does not support authentication"
+#~ msgid "Server does not support STARTTLS but encryption is required"
+#~ msgstr "SMTP-servilo ne akceptas rajtiĝon"
+
+#, fuzzy, c-format
+#~| msgid "Reconnect failed.  Mailbox closed."
+#~ msgid "Reconnect failed. Sleeping %d seconds."
+#~ msgstr "Rekonekto malsukcesis. Poŝtfako fermita."
 
 #~ msgid "Warning: Fcc to an IMAP mailbox is not supported in batch mode"
 #~ msgstr "Averto: Fcc al IMAP-poŝtfako ne funkcias en stapla reĝimo"

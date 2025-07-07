@@ -31,6 +31,9 @@
 #include <libxml2/libxml/HTMLparser.h>
 #include <libxml2/libxml/HTMLtree.h>
 
+/* Forward declarations */
+static char *collapse_blank_lines(const char *input);
+
 /* Table structure for preserving table formatting */
 typedef struct table_cell {
   char *content;
