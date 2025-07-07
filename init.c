@@ -2313,8 +2313,12 @@ static int parse_set (BUFFER *tmp, BUFFER *s, union pointer_long_t udata, BUFFER
 
     if (!mutt_strncmp ("my_", tmp->data, 3))
       myvar = tmp->data;
-    else if ((idx = mutt_option_index (tmp->data)) == -1 &&
-             !(reset && !mutt_strcmp ("all", tmp->data)))
+    else if (reset && !mutt_strcmp ("all", tmp->data))
+    {
+      /* Special case for "reset all" - skip idx assignment */
+      idx = -1;
+    }
+    else if ((idx = mutt_option_index (tmp->data)) == -1)
     {
       snprintf (err->data, err->dsize, _("%s: unknown variable"), tmp->data);
       return (-1);
