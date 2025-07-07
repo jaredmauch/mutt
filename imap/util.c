@@ -505,7 +505,6 @@ int imap_continue (const char* msg, const char* resp)
 void imap_error (const char *where, const char *msg)
 {
   mutt_error ("%s [%s]\n", where, msg);
-  mutt_sleep (2);
 }
 
 /* imap_new_idata: Allocate and initialise a new IMAP_DATA structure. */

@@ -343,6 +343,7 @@ enum
 #endif
   OPT_SUBJECT,
   OPT_VERIFYSIG,      /* verify PGP signatures */
+  OPT_HTML_TEXTIFY,   /* convert HTML to plain text using libxml2 */
 
   /* THIS MUST BE THE LAST VALUE. */
   OPT_MAX

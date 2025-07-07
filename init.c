@@ -92,8 +92,22 @@ void set_quadoption (int opt, int flag)
   int n = opt/4;
   int b = (opt % 4) * 2;
 
+  /* Debug: Show when html_textify is being set */
+  if (opt == OPT_HTML_TEXTIFY)
+  {
+    dprint(1, (debugfile, "set_quadoption: Setting OPT_HTML_TEXTIFY to %d (flag=%d, n=%d, b=%d)\n", 
+               flag, flag, n, b));
+  }
+
   QuadOptions[n] &= ~(0x3 << b);
   QuadOptions[n] |= (flag & 0x3) << b;
+
+  /* Debug: Show the result */
+  if (opt == OPT_HTML_TEXTIFY)
+  {
+    dprint(1, (debugfile, "set_quadoption: After setting, quadoption(OPT_HTML_TEXTIFY) = %d\n", 
+               quadoption(OPT_HTML_TEXTIFY)));
+  }
 }
 
 int quadoption (int opt)
@@ -1868,6 +1882,12 @@ static void mutt_set_default (struct option_t *p)
 
 static void mutt_restore_default (struct option_t *p)
 {
+  /* Debug: Show when html_textify is being restored to default */
+  if (mutt_strcmp(p->option, "html_textify") == 0)
+  {
+    dprint(1, (debugfile, "mutt_restore_default: Restoring html_textify to default value %d\n", p->init.l));
+  }
+
   switch (p->type & DT_MASK)
   {
     case DT_STR:
@@ -2252,6 +2272,7 @@ static int parse_set (BUFFER *tmp, BUFFER *s, union pointer_long_t udata, BUFFER
 {
   int query, unset, inv, reset, r = 0;
   int idx = -1;
+  int loop_idx;  /* Separate variable for loop counter */
   const char *p;
   BUFFER *scratch = NULL;
   char* myvar;
@@ -2321,8 +2342,8 @@ static int parse_set (BUFFER *tmp, BUFFER *s, union pointer_long_t udata, BUFFER
 	  snprintf (err->data, err->dsize, "%s", _("Not available in this menu."));
 	  return (-1);
 	}
-	for (idx = 0; MuttVars[idx].option; idx++)
-	  mutt_restore_default (&MuttVars[idx]);
+	for (loop_idx = 0; MuttVars[loop_idx].option; loop_idx++)
+	  mutt_restore_default (&MuttVars[loop_idx]);
 	mutt_set_current_menu_redraw_full ();
 	set_option (OPTSORTSUBTHREADS);
 	set_option (OPTNEEDRESORT);
@@ -2740,6 +2761,12 @@ static int parse_set (BUFFER *tmp, BUFFER *s, union pointer_long_t udata, BUFFER
     }
     else if (DTYPE (MuttVars[idx].type) == DT_QUAD)
     {
+      /* Debug: Show when html_textify is being processed */
+      if (mutt_strcmp(MuttVars[idx].option, "html_textify") == 0)
+      {
+        dprint(1, (debugfile, "parse_set: Processing html_textify quadoption\n"));
+      }
+
       if (query)
       {
 	static const char * const vals[] = { "no", "yes", "ask-no", "ask-yes" };
@@ -2755,9 +2782,23 @@ static int parse_set (BUFFER *tmp, BUFFER *s, union pointer_long_t udata, BUFFER
 	s->dptr++;
 	mutt_extract_token (tmp, s, 0);
 	if (ascii_strcasecmp ("yes", tmp->data) == 0)
+	{
 	  set_quadoption (MuttVars[idx].data.l, MUTT_YES);
+	  /* Debug: Show when html_textify is set to YES */
+	  if (mutt_strcmp(MuttVars[idx].option, "html_textify") == 0)
+	  {
+	    dprint(1, (debugfile, "parse_set: html_textify set to YES (MUTT_YES)\n"));
+	  }
+	}
 	else if (ascii_strcasecmp ("no", tmp->data) == 0)
+	{
 	  set_quadoption (MuttVars[idx].data.l, MUTT_NO);
+	  /* Debug: Show when html_textify is set to NO */
+	  if (mutt_strcmp(MuttVars[idx].option, "html_textify") == 0)
+	  {
+	    dprint(1, (debugfile, "parse_set: html_textify set to NO (MUTT_NO)\n"));
+	  }
+	}
 	else if (ascii_strcasecmp ("ask-yes", tmp->data) == 0)
 	  set_quadoption (MuttVars[idx].data.l, MUTT_ASKYES);
 	else if (ascii_strcasecmp ("ask-no", tmp->data) == 0)
@@ -3984,6 +4025,7 @@ void mutt_init (int skip_sys_rc, LIST *commands)
   /* Read the user's initialization file.  */
   if (Muttrc)
   {
+    dprint(1, (debugfile, "mutt_init: Loading user config file: %s\n", Muttrc));
     if (!option (OPTNOCURSES))
       endwin ();
     if (source_rc (Muttrc, &err) != 0)
@@ -3992,6 +4034,7 @@ void mutt_init (int skip_sys_rc, LIST *commands)
       fputc ('\n', stderr);
       need_pause = 1;
     }
+    dprint(1, (debugfile, "mutt_init: Finished loading user config file\n"));
   }
 
   if (mutt_execute_commands (commands) != 0)

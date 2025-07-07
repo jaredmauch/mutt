@@ -507,7 +507,6 @@ int imap_open_connection (IMAP_DATA* idata)
 	  if (mutt_ssl_starttls (idata->conn))
 	  {
 	    mutt_error (_("Could not negotiate TLS connection"));
-	    mutt_sleep (1);
 	    goto bail;
 	  }
 	  else
@@ -523,7 +522,6 @@ int imap_open_connection (IMAP_DATA* idata)
     if (option(OPTSSLFORCETLS) && ! idata->conn->ssf)
     {
       mutt_error _("Encrypted connection unavailable");
-      mutt_sleep (1);
       goto bail;
     }
 #endif
@@ -541,7 +539,6 @@ int imap_open_connection (IMAP_DATA* idata)
     if (!idata->conn->ssf && option(OPTSSLFORCETLS))
     {
       mutt_error _("Encrypted connection unavailable");
-      mutt_sleep (1);
       goto bail;
     }
 #endif
@@ -591,7 +588,6 @@ int imap_reconnect (IMAP_DATA **p_idata)
      tries to reconnect.
   */
   mutt_message _("Trying to reconnect...");
-  mutt_sleep (0);
 
   orig_ctx = idata->ctx;
   if (!orig_ctx)

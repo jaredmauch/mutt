@@ -113,7 +113,6 @@ static void imap_alloc_msn_index (IMAP_DATA *idata, unsigned int msn_count)
   if (msn_count >= (UINT_MAX / sizeof (HEADER *)))
   {
     mutt_error _("Integer overflow -- can't allocate memory.");
-    sleep (1);
     mutt_exit (1);
   }
 
@@ -821,7 +820,6 @@ fail:
        using a normal download.
     */
     mutt_error _("QRESYNC failed.  Reopening mailbox.");
-    mutt_sleep (0);
   }
 
   return -1;
@@ -876,7 +874,6 @@ static int read_headers_fetch_new (IMAP_DATA *idata, unsigned int msn_begin,
   else
   {	/* Unable to fetch headers for lower versions */
     mutt_error _("Unable to fetch headers from this IMAP server version.");
-    mutt_sleep (2);	/* pause a moment to let the user see the error */
     goto bail;
   }
 
@@ -889,7 +886,6 @@ static int read_headers_fetch_new (IMAP_DATA *idata, unsigned int msn_begin,
   if (!(fp = safe_fopen (mutt_b2s (tempfile), "w+")))
   {
     mutt_error (_("Could not create temporary file %s"), mutt_b2s (tempfile));
-    mutt_sleep (2);
     goto bail;
   }
   unlink (mutt_b2s (tempfile));
@@ -1440,7 +1436,6 @@ cmd_step_fail:
     if (*pc)
     {
       mutt_error ("%s", pc);
-      mutt_sleep (1);
     }
   }
 

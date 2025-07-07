@@ -37,6 +37,7 @@
 #include "mutt_crypt.h"
 #include "rfc3676.h"
 #include "pager.h"
+#include "html_textify.h"
 
 #define BUFI_SIZE 1000
 #define BUFO_SIZE 2000
@@ -968,6 +969,7 @@ static int mutt_is_autoview (BODY *b)
   {
     /* $implicit_autoview is essentially the same as "auto_view *" */
     is_autoview = 1;
+    dprint(1, (debugfile, "mutt_is_autoview: implicit_autoview enabled for %s\n", type));
   }
   else
   {
@@ -981,18 +983,28 @@ static int mutt_is_autoview (BODY *b)
       if ((i > 0 && t->data[i-1] == '/' && t->data[i] == '*' &&
            ascii_strncasecmp (type, t->data, i) == 0) ||
           ascii_strcasecmp (type, t->data) == 0)
+      {
         is_autoview = 1;
+        dprint(1, (debugfile, "mutt_is_autoview: auto_view list match for %s (pattern: %s)\n", type, t->data));
+      }
     }
 
     if (is_mmnoask (type))
+    {
       is_autoview = 1;
+      dprint(1, (debugfile, "mutt_is_autoview: MM_NOASK match for %s\n", type));
+    }
   }
 
   /* determine if there is a mailcap entry suitable for auto_view
    *
    * WARNING: type is altered by this call as a result of `mime_lookup' support */
   if (is_autoview)
-    return rfc1524_mailcap_lookup(b, type, sizeof(type), NULL, MUTT_AUTOVIEW);
+  {
+    int has_mailcap = rfc1524_mailcap_lookup(b, type, sizeof(type), NULL, MUTT_AUTOVIEW);
+    dprint(1, (debugfile, "mutt_is_autoview: %s has mailcap entry: %s\n", type, has_mailcap ? "yes" : "no"));
+    return has_mailcap;
+  }
 
   return 0;
 }
@@ -1584,6 +1596,85 @@ void mutt_decode_attachment (const BODY *b, STATE *s)
     iconv_close (cd);
 }
 
+/* HTML to text conversion handler */
+static int text_html_handler (BODY *b, STATE *s)
+{
+  FILE *fp = NULL;
+  BUFFER *tempfile = NULL;
+  char *html_content = NULL;
+  char *text_content = NULL;
+  size_t html_len = 0;
+  int rc = 0;
+
+  dprint(1, (debugfile, "text_html_handler: Attempting HTML textification\n"));
+
+  /* Read the HTML content */
+  fseeko (s->fpin, b->offset, SEEK_SET);
+  
+  /* Create a temporary file to store the HTML content */
+  tempfile = mutt_buffer_pool_get ();
+  mutt_buffer_mktemp (tempfile);
+  
+  if ((fp = safe_fopen (mutt_b2s (tempfile), "w")) == NULL)
+  {
+    mutt_error (_("Unable to create temporary file for HTML processing"));
+    mutt_buffer_pool_release (&tempfile);
+    return -1;
+  }
+
+  /* Copy the HTML content to the temp file */
+  mutt_copy_bytes (s->fpin, fp, b->length);
+  safe_fclose (&fp);
+
+  /* Read the HTML content back */
+  if ((fp = safe_fopen (mutt_b2s (tempfile), "r")) == NULL)
+  {
+    mutt_error (_("Unable to read temporary HTML file"));
+    mutt_buffer_pool_release (&tempfile);
+    return -1;
+  }
+
+  /* Read the entire HTML content */
+  struct stat st;
+  fstat (fileno (fp), &st);
+  html_len = st.st_size;
+  
+  dprint(1, (debugfile, "text_html_handler: HTML content size: %zu bytes\n", html_len));
+  
+  if (html_len > 0)
+  {
+    html_content = safe_malloc (html_len + 1);
+    if (fread (html_content, 1, html_len, fp) == html_len)
+    {
+      html_content[html_len] = '\0';
+      
+      /* Convert HTML to text */
+      text_content = mutt_html_to_text (html_content, html_len);
+      
+      if (text_content)
+      {
+        dprint(1, (debugfile, "text_html_handler: HTML textification successful, extracted %zu characters\n", strlen(text_content)));
+        /* Write the converted text to output */
+        fputs (text_content, s->fpout);
+        FREE (&text_content);
+      }
+      else
+      {
+        dprint(1, (debugfile, "text_html_handler: HTML textification failed, falling back to raw HTML\n"));
+        /* Fallback: write original HTML as plain text */
+        fputs (html_content, s->fpout);
+      }
+    }
+    FREE (&html_content);
+  }
+
+  safe_fclose (&fp);
+  unlink (mutt_b2s (tempfile));
+  mutt_buffer_pool_release (&tempfile);
+
+  return rc;
+}
+
 /* when generating format=flowed ($text_flowed is set) from format=fixed,
  * strip all trailing spaces to improve interoperability;
  * if $text_flowed is unset, simply verbatim copy input
@@ -1782,6 +1873,8 @@ int mutt_body_handler (BODY *b, STATE *s)
 
   int oflags = s->flags;
 
+  dprint(1, (debugfile, "mutt_body_handler: ENTER - type=%s/%s\n", TYPE(b), NONULL(b->subtype)));
+
   if (recurse_level >= MUTT_MIME_MAX_DEPTH)
   {
     dprint (1, (debugfile, "mutt_body_handler: recurse level too deep. giving up!\n"));
@@ -1789,15 +1882,31 @@ int mutt_body_handler (BODY *b, STATE *s)
   }
   recurse_level++;
 
+  dprint(1, (debugfile, "mutt_body_handler: Processing %s/%s, html_textify=%s\n", 
+             TYPE(b), NONULL(b->subtype), 
+             quadoption(OPT_HTML_TEXTIFY) ? "enabled" : "disabled"));
+
+  /* Debug: Show the exact option value */
+  dprint(1, (debugfile, "mutt_body_handler: OPT_HTML_TEXTIFY value = %d\n", quadoption(OPT_HTML_TEXTIFY)));
+
   /* first determine which handler to use to process this part */
 
-  if (mutt_is_autoview (b))
+  /* Check for HTML textification first - it should take precedence over auto_view */
+  if (b->type == TYPETEXT && ascii_strcasecmp ("html", b->subtype) == 0 && quadoption(OPT_HTML_TEXTIFY))
   {
+    dprint(1, (debugfile, "mutt_body_handler: Using text_html_handler for HTML textification (overriding auto_view)\n"));
+    handler = text_html_handler;
+  }
+  else if (mutt_is_autoview (b))
+  {
+    dprint(1, (debugfile, "mutt_body_handler: Using autoview_handler for %s/%s (bypassing HTML textification)\n", 
+               TYPE(b), NONULL(b->subtype)));
     handler = autoview_handler;
     s->flags &= ~MUTT_CHARCONV;
   }
   else if (b->type == TYPETEXT)
   {
+    dprint(1, (debugfile, "mutt_body_handler: Processing text content, subtype: %s\n", NONULL(b->subtype)));
     if (ascii_strcasecmp ("plain", b->subtype) == 0)
     {
       /* avoid copying this part twice since removing the transfer-encoding is
@@ -1812,6 +1921,22 @@ int mutt_body_handler (BODY *b, STATE *s)
     }
     else if (ascii_strcasecmp ("enriched", b->subtype) == 0)
       handler = text_enriched_handler;
+    else if (ascii_strcasecmp ("html", b->subtype) == 0)
+    {
+      /* Handle HTML content */
+      dprint(1, (debugfile, "mutt_body_handler: Found text/html content, html_textify option is %s\n", 
+                 quadoption(OPT_HTML_TEXTIFY) ? "enabled" : "disabled"));
+      if (quadoption(OPT_HTML_TEXTIFY))
+      {
+        dprint(1, (debugfile, "mutt_body_handler: Using text_html_handler for HTML textification\n"));
+        handler = text_html_handler;
+      }
+      else
+      {
+        dprint(1, (debugfile, "mutt_body_handler: HTML textification disabled, treating as plaintext\n"));
+        plaintext = 1;
+      }
+    }
     else /* text body type without a handler */
       plaintext = 1;
   }

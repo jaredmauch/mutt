@@ -66,7 +66,6 @@ static imap_auth_res_t imap_auth_oauth (IMAP_DATA* idata, int xoauth2)
        %s is the authentication type, for example OAUTHBEARER
     */
     mutt_error (_("%s authentication failed."), authtype);
-    mutt_sleep (2);
     goto cleanup;
   }
 

@@ -824,6 +824,50 @@ fi
 
 AM_CONDITIONAL(USE_SSL, test x$need_ssl = xyes)
 
+# libxml2 for HTML textification
+AC_ARG_WITH(libxml2, AS_HELP_STRING([--with-libxml2@<:@=PFX@:>@],[Enable HTML to text conversion using libxml2]),
+    [libxml2_prefix="$withval"], [libxml2_prefix="auto"])
+if test "$libxml2_prefix" != "no"
+then
+  if test "$libxml2_prefix" != "yes" -a "$libxml2_prefix" != "auto"
+  then
+    LDFLAGS="$LDFLAGS -L$libxml2_prefix/lib"
+    CPPFLAGS="$CPPFLAGS -I$libxml2_prefix/include"
+  fi
+  saved_LIBS="$LIBS"
+  
+  # Try pkg-config first
+  PKG_CHECK_MODULES([LIBXML2], [libxml-2.0], [have_libxml2=yes], [have_libxml2=no])
+  
+  if test "x$have_libxml2" = "xyes"
+  then
+    MUTTLIBS="$MUTTLIBS $LIBXML2_LIBS"
+    CPPFLAGS="$CPPFLAGS $LIBXML2_CFLAGS"
+    AC_DEFINE(USE_LIBXML2, 1, [Define if you have libxml2 available])
+    AC_DEFINE(HAVE_LIBXML2, 1, [Define if you have libxml2 available])
+  else
+    # Fallback to manual check
+    AC_CHECK_HEADERS([libxml2/libxml/parser.h], 
+      [AC_CHECK_LIB([xml2], [xmlReadMemory],
+        [have_libxml2=yes],
+        [have_libxml2=no])],
+      [have_libxml2=no])
+    
+    if test "x$have_libxml2" = "xyes"
+    then
+      MUTTLIBS="$MUTTLIBS -lxml2"
+      AC_DEFINE(USE_LIBXML2, 1, [Define if you have libxml2 available])
+      AC_DEFINE(HAVE_LIBXML2, 1, [Define if you have libxml2 available])
+    else
+      if test "x$libxml2_prefix" != "xauto"
+      then
+        AC_MSG_ERROR([libxml2 requested, but library or headers not found])
+      fi
+    fi
+  fi
+  LIBS="$saved_LIBS"
+fi
+
 AC_ARG_WITH(sasl, AS_HELP_STRING([--with-sasl@<:@=PFX@:>@],[Use SASL network security library]),
         [
         if test "$with_sasl" != "no"

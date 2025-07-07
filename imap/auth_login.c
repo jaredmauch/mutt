@@ -68,6 +68,5 @@ imap_auth_res_t imap_auth_login (IMAP_DATA* idata, const char* method)
   }
 
   mutt_error _("Login failed.");
-  mutt_sleep (2);
   return IMAP_AUTH_FAILURE;
 }

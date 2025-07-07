@@ -71,6 +71,5 @@ imap_auth_res_t imap_auth_anon (IMAP_DATA* idata, const char* method)
 
 bail:
   mutt_error _("Anonymous authentication failed.");
-  mutt_sleep (2);
   return IMAP_AUTH_FAILURE;
 }

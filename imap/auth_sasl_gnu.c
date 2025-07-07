@@ -133,7 +133,6 @@ bail:
   {
     dprint (2, (debugfile, "imap_auth_gsasl: %s failed\n", chosen_mech));
     mutt_error _("SASL authentication failed.");
-    mutt_sleep (2);
   }
 
   return rc;

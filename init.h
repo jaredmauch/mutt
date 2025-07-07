@@ -2303,6 +2303,16 @@ struct option_t MuttVars[] = {
   { "mime_forward_rest", DT_QUAD, R_NONE, {.l=OPT_MIMEFWDREST}, {.l=MUTT_YES} },
   /*
   ** .pp
+  ** When \fIset\fP, Mutt will automatically convert HTML email content to plain text
+  ** using libxml2. This strips out HTML tags, CSS, and other formatting while
+  ** preserving the readable text content. This is useful for viewing HTML emails
+  ** in a text-based environment without external tools like lynx or w3m.
+  **
+  ** Note: This requires libxml2 to be available at compile time.
+  */
+  { "html_textify",	DT_QUAD, R_NONE, {.l=OPT_HTML_TEXTIFY}, {.l=MUTT_YES} },
+  /*
+  ** .pp
   ** When forwarding multiple attachments of a MIME message from the attachment
   ** menu, attachments which cannot be decoded in a reasonable manner will
   ** be attached to the newly composed message if this option is \fIset\fP.
