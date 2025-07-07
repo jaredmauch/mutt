@@ -146,24 +146,50 @@
 #define HAVE_GETTEXT 1
 #define HAVE_DCGETTEXT 1
 #define HAVE_ICONV 1
+#define ICONV_CONST 
+#define HAVE_ICONV_H 1
+#define HAVE_ICONV_T_DEF 1
+#define ICONV_NONTRANS 0
+#define HAVE_BIND_TEXTDOMAIN_CODESET 1
+#define HAVE_IDN2_H 1
+#define HAVE_LIBIDN2 1
+#define HAVE_IDNA_TO_UNICODE_8Z8Z 1
+#define HAVE_IDNA_TO_ASCII_8Z 1
+#define HAVE_IDNA_TO_ASCII_LZ 1
+#define HAVE_WCHAR_H 1
+#define HAVE_WCTYPE_H 1
+#define HAVE_ISWALNUM 1
+#define HAVE_ISWALPHA 1
+#define HAVE_ISWBLANK 1
 /* end confdefs.h.  */
+/* Define iswcntrl to an innocuous variant, in case <limits.h> declares iswcntrl.
+   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
+#define iswcntrl innocuous_iswcntrl
 
-#include <stdlib.h>
-#include <iconv.h>
-extern
+/* System header to define __stub macros and hopefully few prototypes,
+   which can conflict with char iswcntrl (void); below.  */
+
+#include <limits.h>
+#undef iswcntrl
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
 #ifdef __cplusplus
-"C"
+extern "C"
 #endif
-#if defined(__STDC__) || defined(_MSC_VER) || defined(__cplusplus)
-size_t iconv (iconv_t cd, char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);
-#else
-size_t iconv();
+char iswcntrl (void);
+/* The GNU C library defines this for functions which it implements
+    to always fail with ENOSYS.  Some functions are actually named
+    something starting with __ and the normal name is an alias.  */
+#if defined __stub_iswcntrl || defined __stub___iswcntrl
+choke me
 #endif
 
 int
 main (void)
 {
-
+return iswcntrl ();
   ;
   return 0;
 }
