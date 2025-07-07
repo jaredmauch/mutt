@@ -1312,6 +1312,7 @@ AC_ARG_ENABLE(iconv, AS_HELP_STRING([--disable-iconv],[Disable iconv support]),
         fi
 ])
 
+AM_GNU_GETTEXT_REQUIRE_VERSION([0.20.2])
 AM_GNU_GETTEXT([external])
 AM_ICONV
 
